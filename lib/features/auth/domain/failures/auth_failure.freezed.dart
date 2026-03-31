@@ -55,16 +55,13 @@ extension AuthFailurePatterns on AuthFailure {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( InvalidCredentials value)?  invalidCredentials,TResult Function( Unauthorized value)?  unauthorized,TResult Function( Network value)?  network,TResult Function( Server value)?  server,TResult Function( Storage value)?  storage,TResult Function( Unknown value)?  unknown,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( InvalidCredentials value)?  invalidCredentials,TResult Function( Unauthorized value)?  unauthorized,TResult Function( CommonAuthFailure value)?  common,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case InvalidCredentials() when invalidCredentials != null:
 return invalidCredentials(_that);case Unauthorized() when unauthorized != null:
-return unauthorized(_that);case Network() when network != null:
-return network(_that);case Server() when server != null:
-return server(_that);case Storage() when storage != null:
-return storage(_that);case Unknown() when unknown != null:
-return unknown(_that);case _:
+return unauthorized(_that);case CommonAuthFailure() when common != null:
+return common(_that);case _:
   return orElse();
 
 }
@@ -82,16 +79,13 @@ return unknown(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( InvalidCredentials value)  invalidCredentials,required TResult Function( Unauthorized value)  unauthorized,required TResult Function( Network value)  network,required TResult Function( Server value)  server,required TResult Function( Storage value)  storage,required TResult Function( Unknown value)  unknown,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( InvalidCredentials value)  invalidCredentials,required TResult Function( Unauthorized value)  unauthorized,required TResult Function( CommonAuthFailure value)  common,}){
 final _that = this;
 switch (_that) {
 case InvalidCredentials():
 return invalidCredentials(_that);case Unauthorized():
-return unauthorized(_that);case Network():
-return network(_that);case Server():
-return server(_that);case Storage():
-return storage(_that);case Unknown():
-return unknown(_that);}
+return unauthorized(_that);case CommonAuthFailure():
+return common(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -105,16 +99,13 @@ return unknown(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( InvalidCredentials value)?  invalidCredentials,TResult? Function( Unauthorized value)?  unauthorized,TResult? Function( Network value)?  network,TResult? Function( Server value)?  server,TResult? Function( Storage value)?  storage,TResult? Function( Unknown value)?  unknown,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( InvalidCredentials value)?  invalidCredentials,TResult? Function( Unauthorized value)?  unauthorized,TResult? Function( CommonAuthFailure value)?  common,}){
 final _that = this;
 switch (_that) {
 case InvalidCredentials() when invalidCredentials != null:
 return invalidCredentials(_that);case Unauthorized() when unauthorized != null:
-return unauthorized(_that);case Network() when network != null:
-return network(_that);case Server() when server != null:
-return server(_that);case Storage() when storage != null:
-return storage(_that);case Unknown() when unknown != null:
-return unknown(_that);case _:
+return unauthorized(_that);case CommonAuthFailure() when common != null:
+return common(_that);case _:
   return null;
 
 }
@@ -131,15 +122,12 @@ return unknown(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  invalidCredentials,TResult Function()?  unauthorized,TResult Function()?  network,TResult Function( String? message)?  server,TResult Function()?  storage,TResult Function( String? message)?  unknown,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  invalidCredentials,TResult Function()?  unauthorized,TResult Function( CommonFailure failure)?  common,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case InvalidCredentials() when invalidCredentials != null:
 return invalidCredentials();case Unauthorized() when unauthorized != null:
-return unauthorized();case Network() when network != null:
-return network();case Server() when server != null:
-return server(_that.message);case Storage() when storage != null:
-return storage();case Unknown() when unknown != null:
-return unknown(_that.message);case _:
+return unauthorized();case CommonAuthFailure() when common != null:
+return common(_that.failure);case _:
   return orElse();
 
 }
@@ -157,15 +145,12 @@ return unknown(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  invalidCredentials,required TResult Function()  unauthorized,required TResult Function()  network,required TResult Function( String? message)  server,required TResult Function()  storage,required TResult Function( String? message)  unknown,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  invalidCredentials,required TResult Function()  unauthorized,required TResult Function( CommonFailure failure)  common,}) {final _that = this;
 switch (_that) {
 case InvalidCredentials():
 return invalidCredentials();case Unauthorized():
-return unauthorized();case Network():
-return network();case Server():
-return server(_that.message);case Storage():
-return storage();case Unknown():
-return unknown(_that.message);}
+return unauthorized();case CommonAuthFailure():
+return common(_that.failure);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -179,15 +164,12 @@ return unknown(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  invalidCredentials,TResult? Function()?  unauthorized,TResult? Function()?  network,TResult? Function( String? message)?  server,TResult? Function()?  storage,TResult? Function( String? message)?  unknown,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  invalidCredentials,TResult? Function()?  unauthorized,TResult? Function( CommonFailure failure)?  common,}) {final _that = this;
 switch (_that) {
 case InvalidCredentials() when invalidCredentials != null:
 return invalidCredentials();case Unauthorized() when unauthorized != null:
-return unauthorized();case Network() when network != null:
-return network();case Server() when server != null:
-return server(_that.message);case Storage() when storage != null:
-return storage();case Unknown() when unknown != null:
-return unknown(_that.message);case _:
+return unauthorized();case CommonAuthFailure() when common != null:
+return common(_that.failure);case _:
   return null;
 
 }
@@ -262,197 +244,76 @@ String toString() {
 /// @nodoc
 
 
-class Network implements AuthFailure {
-  const Network();
+class CommonAuthFailure implements AuthFailure {
+  const CommonAuthFailure(this.failure);
   
 
-
-
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Network);
-}
-
-
-@override
-int get hashCode => runtimeType.hashCode;
-
-@override
-String toString() {
-  return 'AuthFailure.network()';
-}
-
-
-}
-
-
-
-
-/// @nodoc
-
-
-class Server implements AuthFailure {
-  const Server([this.message]);
-  
-
- final  String? message;
+ final  CommonFailure failure;
 
 /// Create a copy of AuthFailure
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$ServerCopyWith<Server> get copyWith => _$ServerCopyWithImpl<Server>(this, _$identity);
+$CommonAuthFailureCopyWith<CommonAuthFailure> get copyWith => _$CommonAuthFailureCopyWithImpl<CommonAuthFailure>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Server&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommonAuthFailure&&(identical(other.failure, failure) || other.failure == failure));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode => Object.hash(runtimeType,failure);
 
 @override
 String toString() {
-  return 'AuthFailure.server(message: $message)';
+  return 'AuthFailure.common(failure: $failure)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $ServerCopyWith<$Res> implements $AuthFailureCopyWith<$Res> {
-  factory $ServerCopyWith(Server value, $Res Function(Server) _then) = _$ServerCopyWithImpl;
+abstract mixin class $CommonAuthFailureCopyWith<$Res> implements $AuthFailureCopyWith<$Res> {
+  factory $CommonAuthFailureCopyWith(CommonAuthFailure value, $Res Function(CommonAuthFailure) _then) = _$CommonAuthFailureCopyWithImpl;
 @useResult
 $Res call({
- String? message
+ CommonFailure failure
 });
 
 
-
+$CommonFailureCopyWith<$Res> get failure;
 
 }
 /// @nodoc
-class _$ServerCopyWithImpl<$Res>
-    implements $ServerCopyWith<$Res> {
-  _$ServerCopyWithImpl(this._self, this._then);
+class _$CommonAuthFailureCopyWithImpl<$Res>
+    implements $CommonAuthFailureCopyWith<$Res> {
+  _$CommonAuthFailureCopyWithImpl(this._self, this._then);
 
-  final Server _self;
-  final $Res Function(Server) _then;
+  final CommonAuthFailure _self;
+  final $Res Function(CommonAuthFailure) _then;
 
 /// Create a copy of AuthFailure
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = freezed,}) {
-  return _then(Server(
-freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String?,
+@pragma('vm:prefer-inline') $Res call({Object? failure = null,}) {
+  return _then(CommonAuthFailure(
+null == failure ? _self.failure : failure // ignore: cast_nullable_to_non_nullable
+as CommonFailure,
   ));
 }
 
-
-}
-
-/// @nodoc
-
-
-class Storage implements AuthFailure {
-  const Storage();
-  
-
-
-
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Storage);
-}
-
-
-@override
-int get hashCode => runtimeType.hashCode;
-
-@override
-String toString() {
-  return 'AuthFailure.storage()';
-}
-
-
-}
-
-
-
-
-/// @nodoc
-
-
-class Unknown implements AuthFailure {
-  const Unknown([this.message]);
-  
-
- final  String? message;
-
 /// Create a copy of AuthFailure
 /// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
+@override
 @pragma('vm:prefer-inline')
-$UnknownCopyWith<Unknown> get copyWith => _$UnknownCopyWithImpl<Unknown>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Unknown&&(identical(other.message, message) || other.message == message));
+$CommonFailureCopyWith<$Res> get failure {
+  
+  return $CommonFailureCopyWith<$Res>(_self.failure, (value) {
+    return _then(_self.copyWith(failure: value));
+  });
 }
-
-
-@override
-int get hashCode => Object.hash(runtimeType,message);
-
-@override
-String toString() {
-  return 'AuthFailure.unknown(message: $message)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $UnknownCopyWith<$Res> implements $AuthFailureCopyWith<$Res> {
-  factory $UnknownCopyWith(Unknown value, $Res Function(Unknown) _then) = _$UnknownCopyWithImpl;
-@useResult
-$Res call({
- String? message
-});
-
-
-
-
-}
-/// @nodoc
-class _$UnknownCopyWithImpl<$Res>
-    implements $UnknownCopyWith<$Res> {
-  _$UnknownCopyWithImpl(this._self, this._then);
-
-  final Unknown _self;
-  final $Res Function(Unknown) _then;
-
-/// Create a copy of AuthFailure
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = freezed,}) {
-  return _then(Unknown(
-freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String?,
-  ));
-}
-
-
 }
 
 // dart format on

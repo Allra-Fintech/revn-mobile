@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 
+import '../../../../core/errors/common_failure.dart';
 import '../../domain/entities/current_user.dart';
 import '../../domain/failures/auth_failure.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -76,16 +77,16 @@ class AuthRepositoryImpl implements AuthRepository {
           error.type == DioExceptionType.connectionTimeout ||
           error.type == DioExceptionType.receiveTimeout ||
           error.type == DioExceptionType.sendTimeout) {
-        return const AuthFailure.network();
+        return const AuthFailure.common(CommonFailure.network());
       }
 
-      return AuthFailure.server(error.message);
+      return AuthFailure.common(CommonFailure.server(error.message));
     }
 
     if (error is FormatException) {
-      return AuthFailure.unknown(error.message);
+      return AuthFailure.common(CommonFailure.unknown(error.message));
     }
 
-    return AuthFailure.unknown(error.toString());
+    return AuthFailure.common(CommonFailure.unknown(error.toString()));
   }
 }

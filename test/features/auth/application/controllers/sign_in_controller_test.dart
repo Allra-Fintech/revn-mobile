@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:fpdart/fpdart.dart';
 
+import 'package:revn/core/errors/common_failure.dart';
 import 'package:revn/features/auth/application/controllers/auth_controller.dart';
 import 'package:revn/features/auth/application/controllers/sign_in_controller.dart';
 import 'package:revn/features/auth/application/providers/auth_providers.dart';
@@ -64,5 +65,25 @@ void main() {
 
     expect(state.hasError, true);
     expect(state.error, const AuthFailure.invalidCredentials());
+  });
+
+  test('네트워크 오류 시 common failure로 AsyncError 상태가 된다', () async {
+    when(
+      () => signInUseCase(email: 'test@test.com', password: '1234'),
+    ).thenReturn(TaskEither.left(
+      const AuthFailure.common(CommonFailure.network()),
+    ));
+
+    await container
+        .read(signInControllerProvider.notifier)
+        .signIn(email: 'test@test.com', password: '1234');
+
+    final state = container.read(signInControllerProvider);
+
+    expect(state.hasError, true);
+    expect(
+      state.error,
+      const AuthFailure.common(CommonFailure.network()),
+    );
   });
 }

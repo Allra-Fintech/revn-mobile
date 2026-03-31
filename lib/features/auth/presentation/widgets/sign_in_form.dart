@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/common_failure.dart';
 import '../../application/controllers/sign_in_controller.dart';
 import '../../domain/failures/auth_failure.dart';
 import '../providers/sign_in_form_provider.dart';
@@ -20,10 +21,12 @@ class SignInForm extends ConsumerWidget {
           final message = switch (error) {
             InvalidCredentials() => '이메일 또는 비밀번호를 확인해주세요.',
             Unauthorized() => '인증이 만료되었거나 유효하지 않습니다.',
-            Network() => '네트워크 연결을 확인해주세요.',
-            Storage() => '기기 저장소 접근에 실패했습니다.',
-            Server(:final message) => message ?? '서버 오류가 발생했습니다.',
-            Unknown(:final message) => message ?? '알 수 없는 오류가 발생했습니다.',
+            CommonAuthFailure(:final failure) => switch (failure) {
+              NetworkFailure() => '네트워크 연결을 확인해주세요.',
+              StorageFailure() => '기기 저장소 접근에 실패했습니다.',
+              ServerFailure(:final message) => message ?? '서버 오류가 발생했습니다.',
+              UnknownFailure(:final message) => message ?? '알 수 없는 오류가 발생했습니다.',
+            },
             _ => '로그인에 실패했습니다.',
           };
 

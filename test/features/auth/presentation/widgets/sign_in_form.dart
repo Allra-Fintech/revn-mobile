@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:revn/core/errors/common_failure.dart';
 import 'package:revn/features/auth/application/providers/auth_providers.dart';
 import 'package:revn/features/auth/application/usecases/sign_in_usecase.dart';
 import 'package:revn/features/auth/domain/entities/current_user.dart';
@@ -110,5 +111,27 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('이메일 또는 비밀번호를 확인해주세요.'), findsOneWidget);
+  });
+
+  testWidgets('네트워크 오류 시 네트워크 오류 스낵바를 보여준다', (tester) async {
+    when(
+      () => signInUseCase(email: 'test@test.com', password: '1234'),
+    ).thenReturn(TaskEither.left(
+      const AuthFailure.common(CommonFailure.network()),
+    ));
+
+    await tester.pumpWidget(buildTestApp());
+    final emailField = tester.widget<TextField>(find.byType(TextField).at(0));
+    final passwordField = tester.widget<TextField>(find.byType(TextField).at(1));
+
+    emailField.onChanged?.call('test@test.com');
+    passwordField.onChanged?.call('1234');
+    await tester.pump();
+
+    final button = tester.widget<FilledButton>(find.byType(FilledButton));
+    button.onPressed?.call();
+    await tester.pumpAndSettle();
+
+    expect(find.text('네트워크 연결을 확인해주세요.'), findsOneWidget);
   });
 }
