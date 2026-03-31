@@ -10,7 +10,9 @@ import 'package:revn/features/auth/application/states/auth_state.dart';
 import 'package:revn/features/auth/domain/entities/current_user.dart';
 import 'package:revn/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:revn/features/auth/presentation/pages/splash_page.dart';
+import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
 import 'package:revn/features/home/presentation/pages/home_page.dart';
+import 'package:revn/features/home/presentation/routes/home_routes.dart';
 
 import '../../features/auth/helpers/test_auth_controller.dart';
 
@@ -42,6 +44,10 @@ void main() {
     return containerOf(tester).read(appRouterProvider);
   }
 
+  String locationOf(WidgetTester tester) {
+    return routerOf(tester).routeInformationProvider.value.uri.path;
+  }
+
   Future<void> pumpRouterApp(
     WidgetTester tester,
     TestAuthController authController,
@@ -62,12 +68,14 @@ void main() {
   testWidgets('initial state routes to splash', (tester) async {
     await pumpRouterApp(tester, TestAuthController(const AuthState.initial()));
 
+    expect(locationOf(tester), AuthRoute.splash.path);
     expect(find.byType(SplashPage), findsOneWidget);
   });
 
   testWidgets('loading state routes to splash', (tester) async {
     await pumpRouterApp(tester, TestAuthController(const AuthState.loading()));
 
+    expect(locationOf(tester), AuthRoute.splash.path);
     expect(find.byType(SplashPage), findsOneWidget);
   });
 
@@ -86,10 +94,11 @@ void main() {
       TestAuthController(const AuthState.authenticated(user)),
     );
 
-    routerOf(tester).go(AppRoute.signIn.path);
+    routerOf(tester).go(AuthRoute.signIn.path);
     await tester.pump();
     await tester.pump();
 
+    expect(locationOf(tester), HomeRoute.home.path);
     expect(find.byType(HomePage), findsOneWidget);
   });
 
@@ -103,10 +112,11 @@ void main() {
 
     expect(find.byType(SignInPage), findsOneWidget);
 
-    routerOf(tester).go(AppRoute.home.path);
+    routerOf(tester).go(HomeRoute.home.path);
     await tester.pump();
     await tester.pump();
 
+    expect(locationOf(tester), AuthRoute.signIn.path);
     expect(find.byType(SignInPage), findsOneWidget);
   });
 

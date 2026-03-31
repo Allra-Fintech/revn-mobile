@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:revn/app/router/app_router.dart';
 import 'package:go_router/go_router.dart';
+import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
 
 import '../widgets/sign_in_form.dart';
 
@@ -28,7 +28,7 @@ class SignInPage extends StatelessWidget {
                   SignInForm(),
                   SizedBox(height: 16),
                   TextButton(
-                    onPressed: () => context.push(AppRoute.signUp.path),
+                    onPressed: () => context.push(AuthRoute.signUp.path),
                     child: Text('회원가입'),
                   ),
                 ],
