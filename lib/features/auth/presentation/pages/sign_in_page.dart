@@ -27,9 +27,20 @@ class SignInPage extends StatelessWidget {
                   SizedBox(height: 32),
                   SignInForm(),
                   SizedBox(height: 16),
-                  TextButton(
-                    onPressed: () => context.push(AuthRoute.signUp.path),
-                    child: Text('회원가입'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('아직 계정이 없으신가요?'),
+                      TextButton(
+                        onPressed: () => context.go(AuthRoute.signUp.path),
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text('회원가입'),
+                      ),
+                    ],
                   ),
                 ],
               ),
