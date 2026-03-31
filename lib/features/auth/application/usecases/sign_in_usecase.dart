@@ -7,9 +7,12 @@ class SignInUseCase {
   final AuthRepository _authRepository;
 
   AuthResultFuture<CurrentUser> call({
-    required String email,
+    required String businessNumber,
     required String password,
   }) {
-    return _authRepository.signIn(email: email, password: password);
+    return _authRepository.signIn(
+      businessNumber: businessNumber,
+      password: password,
+    );
   }
 }

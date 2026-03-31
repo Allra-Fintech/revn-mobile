@@ -33,18 +33,18 @@ void main() {
   test('로그인 성공 시 AuthController가 authenticated가 된다', () async {
     const user = CurrentUser(
       id: '1',
-      email: 'test@test.com',
+      businessNumber: '1234567890',
       nickname: 'Sangmin',
       profileImageUrl: null,
     );
 
     when(
-      () => signInUseCase(email: 'test@test.com', password: '1234'),
+      () => signInUseCase(businessNumber: '1234567890', password: '1234'),
     ).thenReturn(TaskEither.right(user));
 
     await container
         .read(signInControllerProvider.notifier)
-        .signIn(email: 'test@test.com', password: '1234');
+        .signIn(businessNumber: '1234567890', password: '1234');
 
     expect(
       container.read(authControllerProvider),
@@ -54,12 +54,12 @@ void main() {
 
   test('로그인 실패 시 AsyncError 상태가 된다', () async {
     when(
-      () => signInUseCase(email: 'test@test.com', password: '1234'),
+      () => signInUseCase(businessNumber: '1234567890', password: '1234'),
     ).thenReturn(TaskEither.left(const AuthFailure.invalidCredentials()));
 
     await container
         .read(signInControllerProvider.notifier)
-        .signIn(email: 'test@test.com', password: '1234');
+        .signIn(businessNumber: '1234567890', password: '1234');
 
     final state = container.read(signInControllerProvider);
 
@@ -69,21 +69,18 @@ void main() {
 
   test('네트워크 오류 시 common failure로 AsyncError 상태가 된다', () async {
     when(
-      () => signInUseCase(email: 'test@test.com', password: '1234'),
-    ).thenReturn(TaskEither.left(
-      const AuthFailure.common(CommonFailure.network()),
-    ));
+      () => signInUseCase(businessNumber: '1234567890', password: '1234'),
+    ).thenReturn(
+      TaskEither.left(const AuthFailure.common(CommonFailure.network())),
+    );
 
     await container
         .read(signInControllerProvider.notifier)
-        .signIn(email: 'test@test.com', password: '1234');
+        .signIn(businessNumber: '1234567890', password: '1234');
 
     final state = container.read(signInControllerProvider);
 
     expect(state.hasError, true);
-    expect(
-      state.error,
-      const AuthFailure.common(CommonFailure.network()),
-    );
+    expect(state.error, const AuthFailure.common(CommonFailure.network()));
   });
 }

@@ -17,6 +17,29 @@ class MockSignInUseCase extends Mock implements SignInUseCase {}
 void main() {
   late MockSignInUseCase signInUseCase;
 
+  FormFieldState<String> businessNumberFieldState(WidgetTester tester) =>
+      tester.state<FormFieldState<String>>(find.byType(TextFormField).at(0));
+
+  FormFieldState<String> passwordFieldState(WidgetTester tester) =>
+      tester.state<FormFieldState<String>>(find.byType(TextFormField).at(1));
+
+  void fillForm(
+    WidgetTester tester, {
+    required String businessNumber,
+    required String password,
+  }) {
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(SignInForm)),
+    );
+
+    businessNumberFieldState(tester).didChange(businessNumber);
+    passwordFieldState(tester).didChange(password);
+    container
+        .read(signInFormProvider.notifier)
+        .updateBusinessNumber(businessNumber);
+    container.read(signInFormProvider.notifier).updatePassword(password);
+  }
+
   setUp(() {
     signInUseCase = MockSignInUseCase();
   });
@@ -36,14 +59,16 @@ void main() {
     expect(button.onPressed, isNull);
   });
 
-  testWidgets('이메일과 비밀번호를 입력하면 로그인 버튼이 활성화된다', (tester) async {
+  testWidgets('로그인 폼을 Form으로 렌더링한다', (tester) async {
     await tester.pumpWidget(buildTestApp());
 
-    final emailField = tester.widget<TextField>(find.byType(TextField).at(0));
-    final passwordField = tester.widget<TextField>(find.byType(TextField).at(1));
+    expect(find.byType(Form), findsOneWidget);
+  });
 
-    emailField.onChanged?.call('test@test.com');
-    passwordField.onChanged?.call('1234');
+  testWidgets('사업자번호 10자리와 비밀번호를 입력하면 로그인 버튼이 활성화된다', (tester) async {
+    await tester.pumpWidget(buildTestApp());
+
+    fillForm(tester, businessNumber: '1234567890', password: '1234');
     await tester.pump();
 
     final button = tester.widget<FilledButton>(find.byType(FilledButton));
@@ -51,10 +76,26 @@ void main() {
     expect(button.onPressed, isNotNull);
   });
 
+  testWidgets('사업자번호가 10자리가 아니면 로그인 버튼이 비활성화된다', (tester) async {
+    await tester.pumpWidget(buildTestApp());
+
+    fillForm(tester, businessNumber: '123456789', password: '1234');
+    await tester.pump();
+
+    final button = tester.widget<FilledButton>(find.byType(FilledButton));
+
+    expect(button.onPressed, isNull);
+  });
+
   testWidgets('비밀번호 표시 아이콘 탭 시 obscureText가 토글된다', (tester) async {
     await tester.pumpWidget(buildTestApp());
 
-    TextField passwordField() => tester.widget<TextField>(find.byType(TextField).at(1));
+    EditableText passwordField() => tester.widget<EditableText>(
+      find.descendant(
+        of: find.byType(TextFormField).at(1),
+        matching: find.byType(EditableText),
+      ),
+    );
     final container = ProviderScope.containerOf(
       tester.element(find.byType(SignInForm)),
     );
@@ -67,65 +108,55 @@ void main() {
     expect(passwordField().obscureText, isFalse);
   });
 
-  testWidgets('로그인 버튼 탭 시 trim된 이메일과 비밀번호로 로그인 요청한다', (tester) async {
+  testWidgets('로그인 버튼 탭 시 정규화된 사업자번호와 비밀번호로 로그인 요청한다', (tester) async {
     const user = CurrentUser(
       id: '1',
-      email: 'test@test.com',
+      businessNumber: '1234567890',
       nickname: 'tester',
       profileImageUrl: null,
     );
     when(
-      () => signInUseCase(email: 'test@test.com', password: '1234'),
+      () => signInUseCase(businessNumber: '1234567890', password: '1234'),
     ).thenReturn(TaskEither.right(user));
 
     await tester.pumpWidget(buildTestApp());
-    final emailField = tester.widget<TextField>(find.byType(TextField).at(0));
-    final passwordField = tester.widget<TextField>(find.byType(TextField).at(1));
-
-    emailField.onChanged?.call('  test@test.com  ');
-    passwordField.onChanged?.call('1234');
+    fillForm(tester, businessNumber: '123-45-67890', password: '1234');
     await tester.pump();
 
     final button = tester.widget<FilledButton>(find.byType(FilledButton));
     button.onPressed?.call();
     await tester.pumpAndSettle();
 
-    verify(() => signInUseCase(email: 'test@test.com', password: '1234')).called(1);
+    verify(
+      () => signInUseCase(businessNumber: '1234567890', password: '1234'),
+    ).called(1);
   });
 
-  testWidgets('로그인 실패 시 에러 스낵바를 보여준다', (tester) async {
+  testWidgets('로그인 실패 시 사업자번호 기준 에러 스낵바를 보여준다', (tester) async {
     when(
-      () => signInUseCase(email: 'test@test.com', password: '1234'),
+      () => signInUseCase(businessNumber: '1234567890', password: '1234'),
     ).thenReturn(TaskEither.left(const AuthFailure.invalidCredentials()));
 
     await tester.pumpWidget(buildTestApp());
-    final emailField = tester.widget<TextField>(find.byType(TextField).at(0));
-    final passwordField = tester.widget<TextField>(find.byType(TextField).at(1));
-
-    emailField.onChanged?.call('test@test.com');
-    passwordField.onChanged?.call('1234');
+    fillForm(tester, businessNumber: '123-45-67890', password: '1234');
     await tester.pump();
 
     final button = tester.widget<FilledButton>(find.byType(FilledButton));
     button.onPressed?.call();
     await tester.pumpAndSettle();
 
-    expect(find.text('이메일 또는 비밀번호를 확인해주세요.'), findsOneWidget);
+    expect(find.text('사업자번호 또는 비밀번호를 확인해주세요.'), findsOneWidget);
   });
 
   testWidgets('네트워크 오류 시 네트워크 오류 스낵바를 보여준다', (tester) async {
     when(
-      () => signInUseCase(email: 'test@test.com', password: '1234'),
-    ).thenReturn(TaskEither.left(
-      const AuthFailure.common(CommonFailure.network()),
-    ));
+      () => signInUseCase(businessNumber: '1234567890', password: '1234'),
+    ).thenReturn(
+      TaskEither.left(const AuthFailure.common(CommonFailure.network())),
+    );
 
     await tester.pumpWidget(buildTestApp());
-    final emailField = tester.widget<TextField>(find.byType(TextField).at(0));
-    final passwordField = tester.widget<TextField>(find.byType(TextField).at(1));
-
-    emailField.onChanged?.call('test@test.com');
-    passwordField.onChanged?.call('1234');
+    fillForm(tester, businessNumber: '123-45-67890', password: '1234');
     await tester.pump();
 
     final button = tester.widget<FilledButton>(find.byType(FilledButton));
@@ -133,5 +164,18 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('네트워크 연결을 확인해주세요.'), findsOneWidget);
+  });
+
+  testWidgets('사업자번호 필드에 validator가 연결되어 있다', (tester) async {
+    await tester.pumpWidget(buildTestApp());
+
+    final businessNumberField = tester.widget<TextFormField>(
+      find.byType(TextFormField).at(0),
+    );
+
+    expect(
+      businessNumberField.validator?.call('123456789'),
+      '사업자번호 10자리를 입력해주세요.',
+    );
   });
 }

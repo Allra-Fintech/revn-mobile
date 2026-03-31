@@ -38,7 +38,7 @@ void main() {
   test('restoreSession 성공 시 authenticated 상태가 된다', () async {
     const user = CurrentUser(
       id: '1',
-      email: 'test@test.com',
+      businessNumber: '1234567890',
       nickname: 'Sangmin',
       profileImageUrl: null,
     );
@@ -72,7 +72,7 @@ void main() {
     notifier.setAuthenticated(
       const CurrentUser(
         id: '1',
-        email: 'test@test.com',
+        businessNumber: '1234567890',
         nickname: 'Sangmin',
         profileImageUrl: null,
       ),

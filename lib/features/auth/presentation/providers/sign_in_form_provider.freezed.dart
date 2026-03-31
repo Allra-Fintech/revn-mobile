@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SignInFormState {
 
- String get email; String get password; bool get obscurePassword;
+ String get businessNumber; String get password; bool get obscurePassword;
 /// Create a copy of SignInFormState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $SignInFormStateCopyWith<SignInFormState> get copyWith => _$SignInFormStateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SignInFormState&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password)&&(identical(other.obscurePassword, obscurePassword) || other.obscurePassword == obscurePassword));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SignInFormState&&(identical(other.businessNumber, businessNumber) || other.businessNumber == businessNumber)&&(identical(other.password, password) || other.password == password)&&(identical(other.obscurePassword, obscurePassword) || other.obscurePassword == obscurePassword));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,email,password,obscurePassword);
+int get hashCode => Object.hash(runtimeType,businessNumber,password,obscurePassword);
 
 @override
 String toString() {
-  return 'SignInFormState(email: $email, password: $password, obscurePassword: $obscurePassword)';
+  return 'SignInFormState(businessNumber: $businessNumber, password: $password, obscurePassword: $obscurePassword)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $SignInFormStateCopyWith<$Res>  {
   factory $SignInFormStateCopyWith(SignInFormState value, $Res Function(SignInFormState) _then) = _$SignInFormStateCopyWithImpl;
 @useResult
 $Res call({
- String email, String password, bool obscurePassword
+ String businessNumber, String password, bool obscurePassword
 });
 
 
@@ -62,9 +62,9 @@ class _$SignInFormStateCopyWithImpl<$Res>
 
 /// Create a copy of SignInFormState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? email = null,Object? password = null,Object? obscurePassword = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? businessNumber = null,Object? password = null,Object? obscurePassword = null,}) {
   return _then(_self.copyWith(
-email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+businessNumber: null == businessNumber ? _self.businessNumber : businessNumber // ignore: cast_nullable_to_non_nullable
 as String,password: null == password ? _self.password : password // ignore: cast_nullable_to_non_nullable
 as String,obscurePassword: null == obscurePassword ? _self.obscurePassword : obscurePassword // ignore: cast_nullable_to_non_nullable
 as bool,
@@ -149,10 +149,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String email,  String password,  bool obscurePassword)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String businessNumber,  String password,  bool obscurePassword)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SignInFormState() when $default != null:
-return $default(_that.email,_that.password,_that.obscurePassword);case _:
+return $default(_that.businessNumber,_that.password,_that.obscurePassword);case _:
   return orElse();
 
 }
@@ -170,10 +170,10 @@ return $default(_that.email,_that.password,_that.obscurePassword);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String email,  String password,  bool obscurePassword)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String businessNumber,  String password,  bool obscurePassword)  $default,) {final _that = this;
 switch (_that) {
 case _SignInFormState():
-return $default(_that.email,_that.password,_that.obscurePassword);}
+return $default(_that.businessNumber,_that.password,_that.obscurePassword);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -187,10 +187,10 @@ return $default(_that.email,_that.password,_that.obscurePassword);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String email,  String password,  bool obscurePassword)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String businessNumber,  String password,  bool obscurePassword)?  $default,) {final _that = this;
 switch (_that) {
 case _SignInFormState() when $default != null:
-return $default(_that.email,_that.password,_that.obscurePassword);case _:
+return $default(_that.businessNumber,_that.password,_that.obscurePassword);case _:
   return null;
 
 }
@@ -202,10 +202,10 @@ return $default(_that.email,_that.password,_that.obscurePassword);case _:
 
 
 class _SignInFormState implements SignInFormState {
-  const _SignInFormState({this.email = '', this.password = '', this.obscurePassword = true});
+  const _SignInFormState({this.businessNumber = '', this.password = '', this.obscurePassword = true});
   
 
-@override@JsonKey() final  String email;
+@override@JsonKey() final  String businessNumber;
 @override@JsonKey() final  String password;
 @override@JsonKey() final  bool obscurePassword;
 
@@ -219,16 +219,16 @@ _$SignInFormStateCopyWith<_SignInFormState> get copyWith => __$SignInFormStateCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SignInFormState&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password)&&(identical(other.obscurePassword, obscurePassword) || other.obscurePassword == obscurePassword));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SignInFormState&&(identical(other.businessNumber, businessNumber) || other.businessNumber == businessNumber)&&(identical(other.password, password) || other.password == password)&&(identical(other.obscurePassword, obscurePassword) || other.obscurePassword == obscurePassword));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,email,password,obscurePassword);
+int get hashCode => Object.hash(runtimeType,businessNumber,password,obscurePassword);
 
 @override
 String toString() {
-  return 'SignInFormState(email: $email, password: $password, obscurePassword: $obscurePassword)';
+  return 'SignInFormState(businessNumber: $businessNumber, password: $password, obscurePassword: $obscurePassword)';
 }
 
 
@@ -239,7 +239,7 @@ abstract mixin class _$SignInFormStateCopyWith<$Res> implements $SignInFormState
   factory _$SignInFormStateCopyWith(_SignInFormState value, $Res Function(_SignInFormState) _then) = __$SignInFormStateCopyWithImpl;
 @override @useResult
 $Res call({
- String email, String password, bool obscurePassword
+ String businessNumber, String password, bool obscurePassword
 });
 
 
@@ -256,9 +256,9 @@ class __$SignInFormStateCopyWithImpl<$Res>
 
 /// Create a copy of SignInFormState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? email = null,Object? password = null,Object? obscurePassword = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? businessNumber = null,Object? password = null,Object? obscurePassword = null,}) {
   return _then(_SignInFormState(
-email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+businessNumber: null == businessNumber ? _self.businessNumber : businessNumber // ignore: cast_nullable_to_non_nullable
 as String,password: null == password ? _self.password : password // ignore: cast_nullable_to_non_nullable
 as String,obscurePassword: null == obscurePassword ? _self.obscurePassword : obscurePassword // ignore: cast_nullable_to_non_nullable
 as bool,

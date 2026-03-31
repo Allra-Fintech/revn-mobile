@@ -21,12 +21,12 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   AuthResultFuture<CurrentUser> signIn({
-    required String email,
+    required String businessNumber,
     required String password,
   }) {
     return TaskEither.tryCatch(() async {
       final response = await _remoteDataSource.signIn(
-        email: email,
+        businessNumber: businessNumber,
         password: password,
       );
 

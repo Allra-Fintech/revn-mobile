@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/common_failure.dart';
@@ -6,11 +7,49 @@ import '../../application/controllers/sign_in_controller.dart';
 import '../../domain/failures/auth_failure.dart';
 import '../providers/sign_in_form_provider.dart';
 
-class SignInForm extends ConsumerWidget {
+class BusinessNumberTextInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final formatted = formatBusinessNumber(newValue.text);
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
+
+class SignInForm extends ConsumerStatefulWidget {
   const SignInForm({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SignInForm> createState() => _SignInFormState();
+}
+
+class _SignInFormState extends ConsumerState<SignInForm> {
+  final _formKey = GlobalKey<FormState>();
+
+  String? _validateBusinessNumber(String? value) {
+    if (normalizeBusinessNumber(value ?? '').length == 10) {
+      return null;
+    }
+
+    return '사업자번호 10자리를 입력해주세요.';
+  }
+
+  String? _validatePassword(String? value) {
+    if ((value ?? '').trim().isNotEmpty) {
+      return null;
+    }
+
+    return '비밀번호를 입력해주세요.';
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final form = ref.watch(signInFormProvider);
     final canSubmit = ref.watch(signInCanSubmitProvider);
     final signInState = ref.watch(signInControllerProvider);
@@ -19,7 +58,7 @@ class SignInForm extends ConsumerWidget {
       next.whenOrNull(
         error: (error, stackTrace) {
           final message = switch (error) {
-            InvalidCredentials() => '이메일 또는 비밀번호를 확인해주세요.',
+            InvalidCredentials() => '사업자번호 또는 비밀번호를 확인해주세요.',
             Unauthorized() => '인증이 만료되었거나 유효하지 않습니다.',
             CommonAuthFailure(:final failure) => switch (failure) {
               NetworkFailure() => '네트워크 연결을 확인해주세요.',
@@ -42,30 +81,49 @@ class SignInForm extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TextField(
-          keyboardType: TextInputType.emailAddress,
-          enabled: !isLoading,
-          onChanged: ref.read(signInFormProvider.notifier).updateEmail,
-          decoration: const InputDecoration(
-            labelText: '이메일',
-            hintText: 'example@email.com',
-          ),
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          obscureText: form.obscurePassword,
-          enabled: !isLoading,
-          onChanged: ref.read(signInFormProvider.notifier).updatePassword,
-          decoration: InputDecoration(
-            labelText: '비밀번호',
-            suffixIcon: IconButton(
-              onPressed: isLoading
-                  ? null
-                  : ref.read(signInFormProvider.notifier).toggleObscurePassword,
-              icon: Icon(
-                form.obscurePassword ? Icons.visibility_off : Icons.visibility,
+        Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextFormField(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                keyboardType: TextInputType.number,
+                enabled: !isLoading,
+                inputFormatters: [BusinessNumberTextInputFormatter()],
+                onChanged: ref
+                    .read(signInFormProvider.notifier)
+                    .updateBusinessNumber,
+                validator: _validateBusinessNumber,
+                decoration: const InputDecoration(
+                  labelText: '사업자번호',
+                  hintText: '123-45-67890',
+                ),
               ),
-            ),
+              const SizedBox(height: 16),
+              TextFormField(
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                obscureText: form.obscurePassword,
+                enabled: !isLoading,
+                onChanged: ref.read(signInFormProvider.notifier).updatePassword,
+                validator: _validatePassword,
+                decoration: InputDecoration(
+                  labelText: '비밀번호',
+                  suffixIcon: IconButton(
+                    onPressed: isLoading
+                        ? null
+                        : ref
+                              .read(signInFormProvider.notifier)
+                              .toggleObscurePassword,
+                    icon: Icon(
+                      form.obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 24),
@@ -73,10 +131,14 @@ class SignInForm extends ConsumerWidget {
           onPressed: (!canSubmit || isLoading)
               ? null
               : () async {
+                  if (!_formKey.currentState!.validate()) {
+                    return;
+                  }
+
                   await ref
                       .read(signInControllerProvider.notifier)
                       .signIn(
-                        email: form.email.trim(),
+                        businessNumber: form.businessNumber,
                         password: form.password,
                       );
                 },

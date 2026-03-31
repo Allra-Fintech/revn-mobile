@@ -10,10 +10,13 @@ class AuthRemoteDataSource {
   final Dio _dio;
 
   Future<SignInResponseDto> signIn({
-    required String email,
+    required String businessNumber,
     required String password,
   }) async {
-    final requestDto = SignInRequestDto(email: email, password: password);
+    final requestDto = SignInRequestDto(
+      businessNumber: businessNumber,
+      password: password,
+    );
 
     final response = await _dio.post<Map<String, dynamic>>(
       '/auth/sign-in',

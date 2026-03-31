@@ -11,11 +11,17 @@ class SignInController extends AsyncNotifier<void> {
   @override
   Future<void> build() async {}
 
-  Future<void> signIn({required String email, required String password}) async {
+  Future<void> signIn({
+    required String businessNumber,
+    required String password,
+  }) async {
     state = const AsyncLoading();
 
     final useCase = ref.read(signInUseCaseProvider);
-    final result = await useCase(email: email, password: password).run();
+    final result = await useCase(
+      businessNumber: businessNumber,
+      password: password,
+    ).run();
 
     result.match(
       (failure) {

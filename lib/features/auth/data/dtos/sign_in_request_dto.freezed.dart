@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SignInRequestDto {
 
- String get email; String get password;
+ String get businessNumber; String get password;
 /// Create a copy of SignInRequestDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $SignInRequestDtoCopyWith<SignInRequestDto> get copyWith => _$SignInRequestDtoCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SignInRequestDto&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SignInRequestDto&&(identical(other.businessNumber, businessNumber) || other.businessNumber == businessNumber)&&(identical(other.password, password) || other.password == password));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,email,password);
+int get hashCode => Object.hash(runtimeType,businessNumber,password);
 
 @override
 String toString() {
-  return 'SignInRequestDto(email: $email, password: $password)';
+  return 'SignInRequestDto(businessNumber: $businessNumber, password: $password)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $SignInRequestDtoCopyWith<$Res>  {
   factory $SignInRequestDtoCopyWith(SignInRequestDto value, $Res Function(SignInRequestDto) _then) = _$SignInRequestDtoCopyWithImpl;
 @useResult
 $Res call({
- String email, String password
+ String businessNumber, String password
 });
 
 
@@ -65,9 +65,9 @@ class _$SignInRequestDtoCopyWithImpl<$Res>
 
 /// Create a copy of SignInRequestDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? email = null,Object? password = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? businessNumber = null,Object? password = null,}) {
   return _then(_self.copyWith(
-email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+businessNumber: null == businessNumber ? _self.businessNumber : businessNumber // ignore: cast_nullable_to_non_nullable
 as String,password: null == password ? _self.password : password // ignore: cast_nullable_to_non_nullable
 as String,
   ));
@@ -151,10 +151,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String email,  String password)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String businessNumber,  String password)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SignInRequestDto() when $default != null:
-return $default(_that.email,_that.password);case _:
+return $default(_that.businessNumber,_that.password);case _:
   return orElse();
 
 }
@@ -172,10 +172,10 @@ return $default(_that.email,_that.password);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String email,  String password)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String businessNumber,  String password)  $default,) {final _that = this;
 switch (_that) {
 case _SignInRequestDto():
-return $default(_that.email,_that.password);}
+return $default(_that.businessNumber,_that.password);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -189,10 +189,10 @@ return $default(_that.email,_that.password);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String email,  String password)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String businessNumber,  String password)?  $default,) {final _that = this;
 switch (_that) {
 case _SignInRequestDto() when $default != null:
-return $default(_that.email,_that.password);case _:
+return $default(_that.businessNumber,_that.password);case _:
   return null;
 
 }
@@ -204,10 +204,10 @@ return $default(_that.email,_that.password);case _:
 @JsonSerializable()
 
 class _SignInRequestDto implements SignInRequestDto {
-  const _SignInRequestDto({required this.email, required this.password});
+  const _SignInRequestDto({required this.businessNumber, required this.password});
   factory _SignInRequestDto.fromJson(Map<String, dynamic> json) => _$SignInRequestDtoFromJson(json);
 
-@override final  String email;
+@override final  String businessNumber;
 @override final  String password;
 
 /// Create a copy of SignInRequestDto
@@ -223,16 +223,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SignInRequestDto&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SignInRequestDto&&(identical(other.businessNumber, businessNumber) || other.businessNumber == businessNumber)&&(identical(other.password, password) || other.password == password));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,email,password);
+int get hashCode => Object.hash(runtimeType,businessNumber,password);
 
 @override
 String toString() {
-  return 'SignInRequestDto(email: $email, password: $password)';
+  return 'SignInRequestDto(businessNumber: $businessNumber, password: $password)';
 }
 
 
@@ -243,7 +243,7 @@ abstract mixin class _$SignInRequestDtoCopyWith<$Res> implements $SignInRequestD
   factory _$SignInRequestDtoCopyWith(_SignInRequestDto value, $Res Function(_SignInRequestDto) _then) = __$SignInRequestDtoCopyWithImpl;
 @override @useResult
 $Res call({
- String email, String password
+ String businessNumber, String password
 });
 
 
@@ -260,9 +260,9 @@ class __$SignInRequestDtoCopyWithImpl<$Res>
 
 /// Create a copy of SignInRequestDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? email = null,Object? password = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? businessNumber = null,Object? password = null,}) {
   return _then(_SignInRequestDto(
-email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+businessNumber: null == businessNumber ? _self.businessNumber : businessNumber // ignore: cast_nullable_to_non_nullable
 as String,password: null == password ? _self.password : password // ignore: cast_nullable_to_non_nullable
 as String,
   ));

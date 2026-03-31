@@ -35,14 +35,17 @@ void main() {
         refreshToken: 'refresh-token',
         user: UserDto(
           id: '1',
-          email: 'test@test.com',
+          businessNumber: '1234567890',
           nickname: 'Sangmin',
           profileImageUrl: null,
         ),
       );
 
       when(
-        () => remoteDataSource.signIn(email: 'test@test.com', password: '1234'),
+        () => remoteDataSource.signIn(
+          businessNumber: '1234567890',
+          password: '1234',
+        ),
       ).thenAnswer((_) async => response);
 
       when(
@@ -53,14 +56,14 @@ void main() {
       ).thenAnswer((_) async {});
 
       final result = await repository
-          .signIn(email: 'test@test.com', password: '1234')
+          .signIn(businessNumber: '1234567890', password: '1234')
           .run();
 
       expect(result.isRight(), true);
 
       result.match((_) => fail('Right expected'), (user) {
         expect(user.id, '1');
-        expect(user.email, 'test@test.com');
+        expect(user.businessNumber, '1234567890');
         expect(user.nickname, 'Sangmin');
       });
 
@@ -75,7 +78,7 @@ void main() {
     test('401 에러면 unauthorized failure를 반환한다', () async {
       when(
         () => remoteDataSource.signIn(
-          email: any(named: 'email'),
+          businessNumber: any(named: 'businessNumber'),
           password: any(named: 'password'),
         ),
       ).thenThrow(
@@ -89,7 +92,7 @@ void main() {
       );
 
       final result = await repository
-          .signIn(email: 'test@test.com', password: '1234')
+          .signIn(businessNumber: '1234567890', password: '1234')
           .run();
 
       expect(result.isLeft(), true);
@@ -126,7 +129,7 @@ void main() {
       when(() => remoteDataSource.getMe()).thenAnswer(
         (_) async => const UserDto(
           id: '1',
-          email: 'test@test.com',
+          businessNumber: '1234567890',
           nickname: 'Sangmin',
           profileImageUrl: null,
         ),
@@ -138,7 +141,7 @@ void main() {
 
       result.match((_) => fail('Right expected'), (user) {
         expect(user, isNotNull);
-        expect(user!.email, 'test@test.com');
+        expect(user!.businessNumber, '1234567890');
       });
 
       verify(() => remoteDataSource.getMe()).called(1);

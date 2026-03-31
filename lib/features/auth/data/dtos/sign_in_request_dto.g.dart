@@ -8,9 +8,12 @@ part of 'sign_in_request_dto.dart';
 
 _SignInRequestDto _$SignInRequestDtoFromJson(Map<String, dynamic> json) =>
     _SignInRequestDto(
-      email: json['email'] as String,
+      businessNumber: json['businessNumber'] as String,
       password: json['password'] as String,
     );
 
 Map<String, dynamic> _$SignInRequestDtoToJson(_SignInRequestDto instance) =>
-    <String, dynamic>{'email': instance.email, 'password': instance.password};
+    <String, dynamic>{
+      'businessNumber': instance.businessNumber,
+      'password': instance.password,
+    };

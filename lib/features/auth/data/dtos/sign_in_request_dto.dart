@@ -6,7 +6,7 @@ part 'sign_in_request_dto.g.dart';
 @freezed
 sealed class SignInRequestDto with _$SignInRequestDto {
   const factory SignInRequestDto({
-    required String email,
+    required String businessNumber,
     required String password,
   }) = _SignInRequestDto;
 

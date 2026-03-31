@@ -7,7 +7,7 @@ typedef AuthResultFuture<T> = TaskEither<AuthFailure, T>;
 
 abstract interface class AuthRepository {
   AuthResultFuture<CurrentUser> signIn({
-    required String email,
+    required String businessNumber,
     required String password,
   });
 

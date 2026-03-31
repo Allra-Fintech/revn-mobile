@@ -5,7 +5,7 @@ extension UserDtoMapper on UserDto {
   CurrentUser toEntity() {
     return CurrentUser(
       id: id,
-      email: email,
+      businessNumber: businessNumber,
       nickname: nickname,
       profileImageUrl: profileImageUrl,
     );

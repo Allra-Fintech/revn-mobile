@@ -22,11 +22,6 @@ class SignInPage extends StatelessWidget {
                     '로그인',
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    '계정으로 로그인해서 서비스를 이용하세요.',
-                    style: TextStyle(fontSize: 16),
-                  ),
                   SizedBox(height: 32),
                   SignInForm(),
                 ],

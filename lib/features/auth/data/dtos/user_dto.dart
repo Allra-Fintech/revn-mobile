@@ -7,7 +7,7 @@ part 'user_dto.g.dart';
 sealed class UserDto with _$UserDto {
   const factory UserDto({
     required String id,
-    required String email,
+    required String businessNumber,
     String? nickname,
     String? profileImageUrl,
   }) = _UserDto;
