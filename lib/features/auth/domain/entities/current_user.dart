@@ -6,7 +6,8 @@ part 'current_user.freezed.dart';
 sealed class CurrentUser with _$CurrentUser {
   const factory CurrentUser({
     required String id,
-    required String name,
     required String email,
+    String? nickname,
+    String? profileImageUrl,
   }) = _CurrentUser;
 }

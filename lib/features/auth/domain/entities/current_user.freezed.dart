@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CurrentUser {
 
- String get id; String get name; String get email;
+ String get id; String get email; String? get nickname; String? get profileImageUrl;
 /// Create a copy of CurrentUser
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $CurrentUserCopyWith<CurrentUser> get copyWith => _$CurrentUserCopyWithImpl<Curr
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CurrentUser&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CurrentUser&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,email);
+int get hashCode => Object.hash(runtimeType,id,email,nickname,profileImageUrl);
 
 @override
 String toString() {
-  return 'CurrentUser(id: $id, name: $name, email: $email)';
+  return 'CurrentUser(id: $id, email: $email, nickname: $nickname, profileImageUrl: $profileImageUrl)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $CurrentUserCopyWith<$Res>  {
   factory $CurrentUserCopyWith(CurrentUser value, $Res Function(CurrentUser) _then) = _$CurrentUserCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String email
+ String id, String email, String? nickname, String? profileImageUrl
 });
 
 
@@ -62,12 +62,13 @@ class _$CurrentUserCopyWithImpl<$Res>
 
 /// Create a copy of CurrentUser
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? email = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? email = null,Object? nickname = freezed,Object? profileImageUrl = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
-as String,
+as String,nickname: freezed == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
+as String?,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -149,10 +150,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String email)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String email,  String? nickname,  String? profileImageUrl)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CurrentUser() when $default != null:
-return $default(_that.id,_that.name,_that.email);case _:
+return $default(_that.id,_that.email,_that.nickname,_that.profileImageUrl);case _:
   return orElse();
 
 }
@@ -170,10 +171,10 @@ return $default(_that.id,_that.name,_that.email);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String email)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String email,  String? nickname,  String? profileImageUrl)  $default,) {final _that = this;
 switch (_that) {
 case _CurrentUser():
-return $default(_that.id,_that.name,_that.email);}
+return $default(_that.id,_that.email,_that.nickname,_that.profileImageUrl);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -187,10 +188,10 @@ return $default(_that.id,_that.name,_that.email);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String email)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String email,  String? nickname,  String? profileImageUrl)?  $default,) {final _that = this;
 switch (_that) {
 case _CurrentUser() when $default != null:
-return $default(_that.id,_that.name,_that.email);case _:
+return $default(_that.id,_that.email,_that.nickname,_that.profileImageUrl);case _:
   return null;
 
 }
@@ -202,12 +203,13 @@ return $default(_that.id,_that.name,_that.email);case _:
 
 
 class _CurrentUser implements CurrentUser {
-  const _CurrentUser({required this.id, required this.name, required this.email});
+  const _CurrentUser({required this.id, required this.email, this.nickname, this.profileImageUrl});
   
 
 @override final  String id;
-@override final  String name;
 @override final  String email;
+@override final  String? nickname;
+@override final  String? profileImageUrl;
 
 /// Create a copy of CurrentUser
 /// with the given fields replaced by the non-null parameter values.
@@ -219,16 +221,16 @@ _$CurrentUserCopyWith<_CurrentUser> get copyWith => __$CurrentUserCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CurrentUser&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.email, email) || other.email == email));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CurrentUser&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.nickname, nickname) || other.nickname == nickname)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,email);
+int get hashCode => Object.hash(runtimeType,id,email,nickname,profileImageUrl);
 
 @override
 String toString() {
-  return 'CurrentUser(id: $id, name: $name, email: $email)';
+  return 'CurrentUser(id: $id, email: $email, nickname: $nickname, profileImageUrl: $profileImageUrl)';
 }
 
 
@@ -239,7 +241,7 @@ abstract mixin class _$CurrentUserCopyWith<$Res> implements $CurrentUserCopyWith
   factory _$CurrentUserCopyWith(_CurrentUser value, $Res Function(_CurrentUser) _then) = __$CurrentUserCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String email
+ String id, String email, String? nickname, String? profileImageUrl
 });
 
 
@@ -256,12 +258,13 @@ class __$CurrentUserCopyWithImpl<$Res>
 
 /// Create a copy of CurrentUser
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? email = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? email = null,Object? nickname = freezed,Object? profileImageUrl = freezed,}) {
   return _then(_CurrentUser(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
-as String,
+as String,nickname: freezed == nickname ? _self.nickname : nickname // ignore: cast_nullable_to_non_nullable
+as String?,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
