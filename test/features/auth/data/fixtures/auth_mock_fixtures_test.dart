@@ -19,13 +19,13 @@ void main() {
     );
 
     expect(dto.user.businessNumber, AuthMockFixtures.emptyStateBusinessNumber);
-    expect(dto.user.nickname, isEmpty);
+    expect(dto.user.username, isEmpty);
   });
 
   test('me fixture matches UserDto contract', () {
     final dto = UserDto.fromJson(AuthMockFixtures.meResponseJson);
 
     expect(dto.businessNumber, AuthMockFixtures.successBusinessNumber);
-    expect(dto.nickname, 'Mock Owner');
+    expect(dto.username, 'Mock Owner');
   });
 }

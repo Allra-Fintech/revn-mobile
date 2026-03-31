@@ -18,8 +18,7 @@ class AuthMockFixtures {
     'user': <String, dynamic>{
       'id': 'mock-user-1',
       'businessNumber': successBusinessNumber,
-      'nickname': 'Mock Owner',
-      'profileImageUrl': null,
+      'username': 'Mock Owner',
     },
   };
 
@@ -29,16 +28,14 @@ class AuthMockFixtures {
     'user': <String, dynamic>{
       'id': 'mock-user-empty',
       'businessNumber': emptyStateBusinessNumber,
-      'nickname': '',
-      'profileImageUrl': null,
+      'username': '',
     },
   };
 
   static const meResponseJson = <String, dynamic>{
     'id': 'mock-user-1',
     'businessNumber': successBusinessNumber,
-    'nickname': 'Mock Owner',
-    'profileImageUrl': null,
+    'username': 'Mock Owner',
   };
 
   static SignInResponseDto successSignInResponse() {

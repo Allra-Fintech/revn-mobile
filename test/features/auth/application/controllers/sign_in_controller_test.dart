@@ -34,8 +34,7 @@ void main() {
     const user = CurrentUser(
       id: '1',
       businessNumber: '1234567890',
-      nickname: 'Sangmin',
-      profileImageUrl: null,
+      username: 'Sangmin',
     );
 
     when(

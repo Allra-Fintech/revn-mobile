@@ -36,8 +36,7 @@ void main() {
         user: UserDto(
           id: '1',
           businessNumber: '1234567890',
-          nickname: 'Sangmin',
-          profileImageUrl: null,
+          username: 'Sangmin',
         ),
       );
 
@@ -64,7 +63,7 @@ void main() {
       result.match((_) => fail('Right expected'), (user) {
         expect(user.id, '1');
         expect(user.businessNumber, '1234567890');
-        expect(user.nickname, 'Sangmin');
+        expect(user.username, 'Sangmin');
       });
 
       verify(
@@ -130,8 +129,7 @@ void main() {
         (_) async => const UserDto(
           id: '1',
           businessNumber: '1234567890',
-          nickname: 'Sangmin',
-          profileImageUrl: null,
+          username: 'Sangmin',
         ),
       );
 

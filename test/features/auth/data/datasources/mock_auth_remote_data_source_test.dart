@@ -20,10 +20,10 @@ void main() {
       response.user.businessNumber,
       AuthMockFixtures.successBusinessNumber,
     );
-    expect(response.user.nickname, 'Mock Owner');
+    expect(response.user.username, 'Mock Owner');
   });
 
-  test('empty-state credentials return an empty nickname scenario', () async {
+  test('empty-state credentials return an empty username scenario', () async {
     final response = await dataSource.signIn(
       businessNumber: AuthMockFixtures.emptyStateBusinessNumber,
       password: AuthMockFixtures.defaultPassword,
@@ -33,7 +33,7 @@ void main() {
       response.user.businessNumber,
       AuthMockFixtures.emptyStateBusinessNumber,
     );
-    expect(response.user.nickname, isEmpty);
+    expect(response.user.username, isEmpty);
   });
 
   test('validation scenario throws 400 dio exception', () async {
@@ -88,6 +88,6 @@ void main() {
     final user = await dataSource.getMe();
 
     expect(user.businessNumber, AuthMockFixtures.successBusinessNumber);
-    expect(user.nickname, 'Mock Owner');
+    expect(user.username, 'Mock Owner');
   });
 }

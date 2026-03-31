@@ -8,8 +8,7 @@ sealed class UserDto with _$UserDto {
   const factory UserDto({
     required String id,
     required String businessNumber,
-    String? nickname,
-    String? profileImageUrl,
+    String? username,
   }) = _UserDto;
 
   factory UserDto.fromJson(Map<String, dynamic> json) =>

@@ -113,8 +113,7 @@ void main() {
     const user = CurrentUser(
       id: '1',
       businessNumber: '1234567890',
-      nickname: 'tester',
-      profileImageUrl: null,
+      username: 'tester',
     );
     when(
       () => signInUseCase(businessNumber: '1234567890', password: '1234'),
@@ -137,8 +136,7 @@ void main() {
     const user = CurrentUser(
       id: '1',
       businessNumber: '1234567890',
-      nickname: 'tester',
-      profileImageUrl: null,
+      username: 'tester',
     );
     final completer = Completer<CurrentUser>();
 

@@ -24,8 +24,7 @@ Success response:
   "user": {
     "id": "mock-user-1",
     "businessNumber": "1234567890",
-    "nickname": "Mock Owner",
-    "profileImageUrl": null
+    "username": "Mock Owner"
   }
 }
 ```
@@ -46,8 +45,7 @@ Success response:
 {
   "id": "mock-user-1",
   "businessNumber": "1234567890",
-  "nickname": "Mock Owner",
-  "profileImageUrl": null
+  "username": "Mock Owner"
 }
 ```
 

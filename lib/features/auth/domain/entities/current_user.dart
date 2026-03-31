@@ -7,7 +7,6 @@ sealed class CurrentUser with _$CurrentUser {
   const factory CurrentUser({
     required String id,
     required String businessNumber,
-    String? nickname,
-    String? profileImageUrl,
+    String? username,
   }) = _CurrentUser;
 }

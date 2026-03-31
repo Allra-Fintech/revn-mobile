@@ -6,8 +6,7 @@ extension UserDtoMapper on UserDto {
     return CurrentUser(
       id: id,
       businessNumber: businessNumber,
-      nickname: nickname,
-      profileImageUrl: profileImageUrl,
+      username: username,
     );
   }
 }

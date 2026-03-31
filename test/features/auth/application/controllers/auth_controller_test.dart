@@ -39,8 +39,7 @@ void main() {
     const user = CurrentUser(
       id: '1',
       businessNumber: '1234567890',
-      nickname: 'Sangmin',
-      profileImageUrl: null,
+      username: 'Sangmin',
     );
 
     when(() => restoreSessionUseCase()).thenReturn(TaskEither.right(user));
@@ -73,8 +72,7 @@ void main() {
       const CurrentUser(
         id: '1',
         businessNumber: '1234567890',
-        nickname: 'Sangmin',
-        profileImageUrl: null,
+        username: 'Sangmin',
       ),
     );
 
