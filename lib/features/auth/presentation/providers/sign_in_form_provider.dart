@@ -61,9 +61,3 @@ class SignInFormNotifier extends Notifier<SignInFormState> {
     state = state.copyWith(obscurePassword: !state.obscurePassword);
   }
 }
-
-final signInCanSubmitProvider = Provider<bool>((ref) {
-  final form = ref.watch(signInFormProvider);
-
-  return form.businessNumber.length == 10 && form.password.trim().isNotEmpty;
-});

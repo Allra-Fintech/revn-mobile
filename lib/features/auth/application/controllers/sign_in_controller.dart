@@ -9,7 +9,7 @@ final signInControllerProvider = AsyncNotifierProvider<SignInController, void>(
 
 class SignInController extends AsyncNotifier<void> {
   @override
-  Future<void> build() async {}
+  void build() {}
 
   Future<void> signIn({
     required String businessNumber,

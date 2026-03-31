@@ -31,6 +31,7 @@ class SignInForm extends ConsumerStatefulWidget {
 
 class _SignInFormState extends ConsumerState<SignInForm> {
   final _formKey = GlobalKey<FormState>();
+  bool _showValidationErrors = false;
 
   String? _validateBusinessNumber(String? value) {
     if (normalizeBusinessNumber(value ?? '').length == 10) {
@@ -48,10 +49,25 @@ class _SignInFormState extends ConsumerState<SignInForm> {
     return '비밀번호를 입력해주세요.';
   }
 
+  Future<void> _submit(SignInFormState form) async {
+    final isValid = _formKey.currentState!.validate();
+    if (!isValid) {
+      if (!_showValidationErrors) {
+        setState(() {
+          _showValidationErrors = true;
+        });
+      }
+      return;
+    }
+
+    await ref
+        .read(signInControllerProvider.notifier)
+        .signIn(businessNumber: form.businessNumber, password: form.password);
+  }
+
   @override
   Widget build(BuildContext context) {
     final form = ref.watch(signInFormProvider);
-    final canSubmit = ref.watch(signInCanSubmitProvider);
     final signInState = ref.watch(signInControllerProvider);
 
     ref.listen(signInControllerProvider, (previous, next) {
@@ -77,6 +93,9 @@ class _SignInFormState extends ConsumerState<SignInForm> {
     });
 
     final isLoading = signInState.isLoading;
+    final autovalidateMode = _showValidationErrors
+        ? AutovalidateMode.onUserInteraction
+        : AutovalidateMode.disabled;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -87,7 +106,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
-                autovalidateMode: AutovalidateMode.onUserInteraction,
+                autovalidateMode: autovalidateMode,
                 keyboardType: TextInputType.number,
                 enabled: !isLoading,
                 inputFormatters: [BusinessNumberTextInputFormatter()],
@@ -102,7 +121,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                autovalidateMode: AutovalidateMode.onUserInteraction,
+                autovalidateMode: autovalidateMode,
                 obscureText: form.obscurePassword,
                 enabled: !isLoading,
                 onChanged: ref.read(signInFormProvider.notifier).updatePassword,
@@ -128,20 +147,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
         ),
         const SizedBox(height: 24),
         FilledButton(
-          onPressed: (!canSubmit || isLoading)
-              ? null
-              : () async {
-                  if (!_formKey.currentState!.validate()) {
-                    return;
-                  }
-
-                  await ref
-                      .read(signInControllerProvider.notifier)
-                      .signIn(
-                        businessNumber: form.businessNumber,
-                        password: form.password,
-                      );
-                },
+          onPressed: isLoading ? null : () => _submit(form),
           child: isLoading
               ? const SizedBox(
                   width: 20,

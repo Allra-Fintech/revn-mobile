@@ -52,12 +52,19 @@ void main() {
     );
   }
 
-  testWidgets('초기에는 로그인 버튼이 비활성화된다', (tester) async {
+  Future<void> tapSubmitButton(WidgetTester tester) async {
+    await tester.tap(find.byType(FilledButton));
+    await tester.pump();
+  }
+
+  testWidgets('초기에는 로그인 버튼이 활성화되고 에러를 보여주지 않는다', (tester) async {
     await tester.pumpWidget(buildTestApp());
 
     final button = tester.widget<FilledButton>(find.byType(FilledButton));
 
-    expect(button.onPressed, isNull);
+    expect(button.onPressed, isNotNull);
+    expect(find.text('사업자번호 10자리를 입력해주세요.'), findsNothing);
+    expect(find.text('비밀번호를 입력해주세요.'), findsNothing);
   });
 
   testWidgets('로그인 폼을 Form으로 렌더링한다', (tester) async {
@@ -66,26 +73,32 @@ void main() {
     expect(find.byType(Form), findsOneWidget);
   });
 
-  testWidgets('사업자번호 10자리와 비밀번호를 입력하면 로그인 버튼이 활성화된다', (tester) async {
+  testWidgets('빈 값으로 submit하면 validator 에러를 보여주고 로그인 요청하지 않는다', (tester) async {
     await tester.pumpWidget(buildTestApp());
 
-    fillForm(tester, businessNumber: '1234567890', password: '1234');
-    await tester.pump();
+    await tapSubmitButton(tester);
 
-    final button = tester.widget<FilledButton>(find.byType(FilledButton));
-
-    expect(button.onPressed, isNotNull);
+    expect(find.text('사업자번호 10자리를 입력해주세요.'), findsOneWidget);
+    expect(find.text('비밀번호를 입력해주세요.'), findsOneWidget);
+    verifyZeroInteractions(signInUseCase);
   });
 
-  testWidgets('사업자번호가 10자리가 아니면 로그인 버튼이 비활성화된다', (tester) async {
+  testWidgets('첫 submit 실패 이후 입력을 수정하면 에러가 즉시 갱신된다', (tester) async {
     await tester.pumpWidget(buildTestApp());
 
     fillForm(tester, businessNumber: '123456789', password: '1234');
     await tester.pump();
 
-    final button = tester.widget<FilledButton>(find.byType(FilledButton));
+    expect(find.text('사업자번호 10자리를 입력해주세요.'), findsNothing);
 
-    expect(button.onPressed, isNull);
+    await tapSubmitButton(tester);
+
+    expect(find.text('사업자번호 10자리를 입력해주세요.'), findsOneWidget);
+
+    fillForm(tester, businessNumber: '1234567890', password: '1234');
+    await tester.pump();
+
+    expect(find.text('사업자번호 10자리를 입력해주세요.'), findsNothing);
   });
 
   testWidgets('비밀번호 표시 아이콘 탭 시 obscureText가 토글된다', (tester) async {
@@ -123,8 +136,7 @@ void main() {
     fillForm(tester, businessNumber: '123-45-67890', password: '1234');
     await tester.pump();
 
-    final button = tester.widget<FilledButton>(find.byType(FilledButton));
-    button.onPressed?.call();
+    await tester.tap(find.byType(FilledButton));
     await tester.pumpAndSettle();
 
     verify(
@@ -153,10 +165,7 @@ void main() {
     fillForm(tester, businessNumber: '123-45-67890', password: '1234');
     await tester.pump();
 
-    final buttonBeforeTap = tester.widget<FilledButton>(
-      find.byType(FilledButton),
-    );
-    buttonBeforeTap.onPressed?.call();
+    await tester.tap(find.byType(FilledButton));
     await tester.pump();
 
     final buttonDuringLoading = tester.widget<FilledButton>(
@@ -178,8 +187,7 @@ void main() {
     fillForm(tester, businessNumber: '123-45-67890', password: '1234');
     await tester.pump();
 
-    final button = tester.widget<FilledButton>(find.byType(FilledButton));
-    button.onPressed?.call();
+    await tester.tap(find.byType(FilledButton));
     await tester.pumpAndSettle();
 
     expect(find.text('사업자번호 또는 비밀번호를 확인해주세요.'), findsOneWidget);
@@ -196,8 +204,7 @@ void main() {
     fillForm(tester, businessNumber: '123-45-67890', password: '1234');
     await tester.pump();
 
-    final button = tester.widget<FilledButton>(find.byType(FilledButton));
-    button.onPressed?.call();
+    await tester.tap(find.byType(FilledButton));
     await tester.pumpAndSettle();
 
     expect(find.text('네트워크 연결을 확인해주세요.'), findsOneWidget);
