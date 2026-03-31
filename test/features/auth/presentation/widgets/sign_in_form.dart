@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
+import 'dart:async';
 
 import 'package:revn/core/errors/common_failure.dart';
 import 'package:revn/features/auth/application/providers/auth_providers.dart';
@@ -130,6 +131,44 @@ void main() {
     verify(
       () => signInUseCase(businessNumber: '1234567890', password: '1234'),
     ).called(1);
+  });
+
+  testWidgets('로그인 진행 중에는 버튼이 비활성화되고 로더가 보인다', (tester) async {
+    const user = CurrentUser(
+      id: '1',
+      businessNumber: '1234567890',
+      nickname: 'tester',
+      profileImageUrl: null,
+    );
+    final completer = Completer<CurrentUser>();
+
+    when(
+      () => signInUseCase(businessNumber: '1234567890', password: '1234'),
+    ).thenReturn(
+      TaskEither<AuthFailure, CurrentUser>.tryCatch(
+        () => completer.future,
+        (error, stackTrace) => const AuthFailure.invalidCredentials(),
+      ),
+    );
+
+    await tester.pumpWidget(buildTestApp());
+    fillForm(tester, businessNumber: '123-45-67890', password: '1234');
+    await tester.pump();
+
+    final buttonBeforeTap = tester.widget<FilledButton>(
+      find.byType(FilledButton),
+    );
+    buttonBeforeTap.onPressed?.call();
+    await tester.pump();
+
+    final buttonDuringLoading = tester.widget<FilledButton>(
+      find.byType(FilledButton),
+    );
+    expect(buttonDuringLoading.onPressed, isNull);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    completer.complete(user);
+    await tester.pumpAndSettle();
   });
 
   testWidgets('로그인 실패 시 사업자번호 기준 에러 스낵바를 보여준다', (tester) async {

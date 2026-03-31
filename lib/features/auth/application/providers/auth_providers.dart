@@ -1,9 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/providers/app_providers.dart';
+import '../../../../core/config/app_config.dart';
 import '../../../../core/network/dio_provider.dart';
 import '../../../../core/storage/storage_providers.dart';
 import '../../data/datasources/auth_local_data_source.dart';
 import '../../data/datasources/auth_remote_data_source.dart';
+import '../../data/datasources/dio_auth_remote_data_source.dart';
+import '../../data/datasources/mock_auth_remote_data_source.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../usecases/restore_session_usecase.dart';
@@ -11,8 +15,13 @@ import '../usecases/sign_in_usecase.dart';
 import '../usecases/sign_out_usecase.dart';
 
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
+  final appConfig = ref.watch(appConfigProvider);
+  if (appConfig.apiMode == AppApiMode.mock) {
+    return MockAuthRemoteDataSource();
+  }
+
   final dio = ref.watch(dioProvider);
-  return AuthRemoteDataSource(dio);
+  return DioAuthRemoteDataSource(dio);
 });
 
 final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
