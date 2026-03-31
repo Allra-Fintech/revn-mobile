@@ -4,6 +4,7 @@ import 'package:revn/app/router/router_refresh_notifier.dart';
 import 'package:revn/features/auth/application/controllers/auth_controller.dart';
 import 'package:revn/features/auth/application/states/auth_state.dart';
 import 'package:revn/features/auth/presentation/pages/sign_in_page.dart';
+import 'package:revn/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:revn/features/auth/presentation/pages/splash_page.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
@@ -14,6 +15,7 @@ enum AppRoute {
   home('/'),
   logs('/logs'),
   signIn('/sign-in'),
+  signUp('/sign-up'),
   splash('/splash');
 
   const AppRoute(this.path);
@@ -58,20 +60,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoute.splash.path,
         builder: (context, state) => const SplashPage(),
       ),
+      GoRoute(
+        name: AppRoute.signUp.name,
+        path: AppRoute.signUp.path,
+        builder: (context, state) => const SignUpPage(),
+      ),
     ],
     redirect: (context, state) {
       final authState = ref.read(authControllerProvider);
       final location = state.matchedLocation;
 
       final isSplash = location == AppRoute.splash.path;
-      final isSignIn = location == AppRoute.signIn.path;
+      final isAuthPage =
+          location == AppRoute.signIn.path || location == AppRoute.signUp.path;
       final isHome = location == AppRoute.home.path;
 
       return authState.when(
         initial: () => isSplash ? null : AppRoute.splash.path,
         loading: () => isSplash ? null : AppRoute.splash.path,
         authenticated: (_) {
-          if (isSignIn || isSplash) {
+          if (isAuthPage || isSplash) {
             return AppRoute.home.path;
           }
           return null;
