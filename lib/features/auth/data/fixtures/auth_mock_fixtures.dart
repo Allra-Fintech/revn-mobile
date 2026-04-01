@@ -12,6 +12,11 @@ class AuthMockFixtures {
   static const duplicateRegistrationBusinessNumber = '4090000000';
   static const invalidCredentialsBusinessNumber = '4030000000';
   static const defaultPassword = '1234';
+  static const linkedKakaoAccessToken = 'mock-kakao-linked-token';
+  static const unlinkedKakaoAccessToken = 'mock-kakao-unlinked-token';
+  static const linkFailureKakaoAccessToken = 'mock-kakao-link-failure-token';
+  static const timeoutKakaoAccessToken = 'mock-kakao-timeout-token';
+  static const socialAccountNotLinkedMessage = '연동된 소셜 계정이 없습니다.';
 
   static const successSignInResponseJson = <String, dynamic>{
     'accessToken': 'mock-access-token',

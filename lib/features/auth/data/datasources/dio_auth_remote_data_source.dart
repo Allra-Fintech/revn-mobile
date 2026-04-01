@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 
+import '../../domain/entities/social_provider.dart';
 import '../dtos/sign_in_request_dto.dart';
 import '../dtos/sign_in_response_dto.dart';
+import '../dtos/social_auth_request_dto.dart';
 import '../dtos/user_dto.dart';
 import 'auth_remote_data_source.dart';
 
@@ -33,12 +35,22 @@ class DioAuthRemoteDataSource implements AuthRemoteDataSource {
       data: requestDto.toJson(),
     );
 
-    final data = response.data;
-    if (data == null) {
-      throw const FormatException('Response data is null');
-    }
+    return _parseSignInResponse(response.data);
+  }
 
-    return SignInResponseDto.fromJson(data);
+  @override
+  Future<SignInResponseDto> signInWithSocial({
+    required SocialProvider provider,
+    required String accessToken,
+  }) async {
+    final requestDto = SocialAuthRequestDto(accessToken: accessToken);
+
+    final response = await _dio.post<Map<String, dynamic>>(
+      provider.signInPath,
+      data: requestDto.toJson(),
+    );
+
+    return _parseSignInResponse(response.data);
   }
 
   @override
@@ -56,17 +68,30 @@ class DioAuthRemoteDataSource implements AuthRemoteDataSource {
       data: requestDto.toJson(),
     );
 
-    final data = response.data;
-    if (data == null) {
-      throw const FormatException('Response data is null');
-    }
-
-    return SignInResponseDto.fromJson(data);
+    return _parseSignInResponse(response.data);
   }
 
   @override
-  Future<UserDto> getMe() async {
-    final response = await _dio.get<Map<String, dynamic>>('/auth/me');
+  Future<void> linkSocialAccount({
+    required SocialProvider provider,
+    required String accessToken,
+    required String appAccessToken,
+  }) async {
+    final requestDto = SocialAuthRequestDto(accessToken: accessToken);
+
+    await _dio.post<void>(
+      provider.linkPath,
+      data: requestDto.toJson(),
+      options: Options(headers: _authorizationHeaders(appAccessToken)),
+    );
+  }
+
+  @override
+  Future<UserDto> getMe({required String appAccessToken}) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/auth/me',
+      options: Options(headers: _authorizationHeaders(appAccessToken)),
+    );
 
     final data = response.data;
     if (data == null) {
@@ -74,5 +99,17 @@ class DioAuthRemoteDataSource implements AuthRemoteDataSource {
     }
 
     return UserDto.fromJson(data);
+  }
+
+  SignInResponseDto _parseSignInResponse(Map<String, dynamic>? data) {
+    if (data == null) {
+      throw const FormatException('Response data is null');
+    }
+
+    return SignInResponseDto.fromJson(data);
+  }
+
+  Map<String, String> _authorizationHeaders(String appAccessToken) {
+    return <String, String>{'Authorization': 'Bearer $appAccessToken'};
   }
 }

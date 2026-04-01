@@ -62,8 +62,8 @@ void main() {
 
     final state = container.read(signInControllerProvider);
 
-    expect(state.hasError, true);
-    expect(state.error, const AuthFailure.invalidCredentials());
+    expect(state.submission.hasError, true);
+    expect(state.submission.error, const AuthFailure.invalidCredentials());
   });
 
   test('네트워크 오류 시 common failure로 AsyncError 상태가 된다', () async {
@@ -79,7 +79,10 @@ void main() {
 
     final state = container.read(signInControllerProvider);
 
-    expect(state.hasError, true);
-    expect(state.error, const AuthFailure.common(CommonFailure.network()));
+    expect(state.submission.hasError, true);
+    expect(
+      state.submission.error,
+      const AuthFailure.common(CommonFailure.network()),
+    );
   });
 }

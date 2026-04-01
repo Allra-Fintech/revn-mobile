@@ -94,6 +94,68 @@ Failure response examples:
 }
 ```
 
+### `POST /auth/kakao/sign-in`
+
+Request:
+
+```json
+{
+  "accessToken": "kakao-access-token"
+}
+```
+
+Success response:
+
+```json
+{
+  "accessToken": "mock-access-token",
+  "refreshToken": "mock-refresh-token",
+  "user": {
+    "id": "mock-user-1",
+    "businessNumber": "1234567890",
+    "username": "Mock Owner"
+  }
+}
+```
+
+Failure response examples:
+
+```json
+{
+  "message": "연동된 소셜 계정이 없습니다."
+}
+```
+
+### `POST /auth/kakao/link`
+
+Headers:
+
+```txt
+Authorization: Bearer {appAccessToken}
+```
+
+Request:
+
+```json
+{
+  "accessToken": "kakao-access-token"
+}
+```
+
+Success response:
+
+```json
+{}
+```
+
+Failure response examples:
+
+```json
+{
+  "message": "소셜 계정 연동에 실패했습니다."
+}
+```
+
 ### `GET /auth/me`
 
 Success response:
@@ -118,6 +180,9 @@ Success response:
 - `4010000000`: unauthorized (`401`)
 - `4080000000`: connection timeout
 - `4030000000` 또는 그 외 값: invalid credentials (`403`)
+- 카카오 로그인 성공 토큰: `mock-kakao-linked-token`
+- 카카오 미연동 토큰: `mock-kakao-unlinked-token`
+- 카카오 연동 실패 토큰: `mock-kakao-link-failure-token`
 
 ## Run Modes
 

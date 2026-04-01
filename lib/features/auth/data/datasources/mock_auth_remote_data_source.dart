@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../domain/entities/social_provider.dart';
 import '../dtos/sign_in_response_dto.dart';
 import '../dtos/user_dto.dart';
 import '../fixtures/auth_mock_fixtures.dart';
@@ -98,6 +99,33 @@ class MockAuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
+  Future<SignInResponseDto> signInWithSocial({
+    required SocialProvider provider,
+    required String accessToken,
+  }) async {
+    await Future<void>.delayed(latency);
+
+    return switch (accessToken) {
+      AuthMockFixtures.linkedKakaoAccessToken =>
+        AuthMockFixtures.successSignInResponse(),
+      AuthMockFixtures.unlinkedKakaoAccessToken => throw _httpError(
+        path: provider.signInPath,
+        statusCode: 404,
+        message: AuthMockFixtures.socialAccountNotLinkedMessage,
+      ),
+      AuthMockFixtures.timeoutKakaoAccessToken => throw _timeoutError(
+        path: provider.signInPath,
+        message: 'Mock social sign-in timeout.',
+      ),
+      _ => throw _httpError(
+        path: provider.signInPath,
+        statusCode: 400,
+        message: '소셜 로그인에 실패했습니다.',
+      ),
+    };
+  }
+
+  @override
   Future<SignInResponseDto> signUp({
     required String businessNumber,
     required String password,
@@ -140,8 +168,42 @@ class MockAuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserDto> getMe() async {
+  Future<void> linkSocialAccount({
+    required SocialProvider provider,
+    required String accessToken,
+    required String appAccessToken,
+  }) async {
     await Future<void>.delayed(latency);
+
+    if (appAccessToken.trim().isEmpty) {
+      throw _httpError(
+        path: provider.linkPath,
+        statusCode: 401,
+        message: 'Mock unauthorized.',
+      );
+    }
+
+    if (accessToken == AuthMockFixtures.linkFailureKakaoAccessToken) {
+      throw _httpError(
+        path: provider.linkPath,
+        statusCode: 500,
+        message: '소셜 계정 연동에 실패했습니다.',
+      );
+    }
+  }
+
+  @override
+  Future<UserDto> getMe({required String appAccessToken}) async {
+    await Future<void>.delayed(latency);
+
+    if (appAccessToken.trim().isEmpty) {
+      throw _httpError(
+        path: '/auth/me',
+        statusCode: 401,
+        message: 'Mock unauthorized.',
+      );
+    }
+
     return AuthMockFixtures.meResponse();
   }
 

@@ -218,7 +218,9 @@ class _SignUpCredentialsStepState extends ConsumerState<SignUpCredentialsStep> {
                 decoration: InputDecoration(
                   labelText: '비밀번호',
                   suffixIcon: IconButton(
-                    onPressed: isBusy ? null : flowNotifier.toggleObscurePassword,
+                    onPressed: isBusy
+                        ? null
+                        : flowNotifier.toggleObscurePassword,
                     icon: Icon(
                       flow.obscurePassword
                           ? Icons.visibility_off

@@ -55,13 +55,14 @@ extension AuthFailurePatterns on AuthFailure {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( InvalidCredentials value)?  invalidCredentials,TResult Function( Unauthorized value)?  unauthorized,TResult Function( DuplicateBusinessNumber value)?  duplicateBusinessNumber,TResult Function( CommonAuthFailure value)?  common,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( InvalidCredentials value)?  invalidCredentials,TResult Function( Unauthorized value)?  unauthorized,TResult Function( DuplicateBusinessNumber value)?  duplicateBusinessNumber,TResult Function( SocialAccountNotLinked value)?  socialAccountNotLinked,TResult Function( CommonAuthFailure value)?  common,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case InvalidCredentials() when invalidCredentials != null:
 return invalidCredentials(_that);case Unauthorized() when unauthorized != null:
 return unauthorized(_that);case DuplicateBusinessNumber() when duplicateBusinessNumber != null:
-return duplicateBusinessNumber(_that);case CommonAuthFailure() when common != null:
+return duplicateBusinessNumber(_that);case SocialAccountNotLinked() when socialAccountNotLinked != null:
+return socialAccountNotLinked(_that);case CommonAuthFailure() when common != null:
 return common(_that);case _:
   return orElse();
 
@@ -80,13 +81,14 @@ return common(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( InvalidCredentials value)  invalidCredentials,required TResult Function( Unauthorized value)  unauthorized,required TResult Function( DuplicateBusinessNumber value)  duplicateBusinessNumber,required TResult Function( CommonAuthFailure value)  common,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( InvalidCredentials value)  invalidCredentials,required TResult Function( Unauthorized value)  unauthorized,required TResult Function( DuplicateBusinessNumber value)  duplicateBusinessNumber,required TResult Function( SocialAccountNotLinked value)  socialAccountNotLinked,required TResult Function( CommonAuthFailure value)  common,}){
 final _that = this;
 switch (_that) {
 case InvalidCredentials():
 return invalidCredentials(_that);case Unauthorized():
 return unauthorized(_that);case DuplicateBusinessNumber():
-return duplicateBusinessNumber(_that);case CommonAuthFailure():
+return duplicateBusinessNumber(_that);case SocialAccountNotLinked():
+return socialAccountNotLinked(_that);case CommonAuthFailure():
 return common(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
@@ -101,13 +103,14 @@ return common(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( InvalidCredentials value)?  invalidCredentials,TResult? Function( Unauthorized value)?  unauthorized,TResult? Function( DuplicateBusinessNumber value)?  duplicateBusinessNumber,TResult? Function( CommonAuthFailure value)?  common,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( InvalidCredentials value)?  invalidCredentials,TResult? Function( Unauthorized value)?  unauthorized,TResult? Function( DuplicateBusinessNumber value)?  duplicateBusinessNumber,TResult? Function( SocialAccountNotLinked value)?  socialAccountNotLinked,TResult? Function( CommonAuthFailure value)?  common,}){
 final _that = this;
 switch (_that) {
 case InvalidCredentials() when invalidCredentials != null:
 return invalidCredentials(_that);case Unauthorized() when unauthorized != null:
 return unauthorized(_that);case DuplicateBusinessNumber() when duplicateBusinessNumber != null:
-return duplicateBusinessNumber(_that);case CommonAuthFailure() when common != null:
+return duplicateBusinessNumber(_that);case SocialAccountNotLinked() when socialAccountNotLinked != null:
+return socialAccountNotLinked(_that);case CommonAuthFailure() when common != null:
 return common(_that);case _:
   return null;
 
@@ -125,12 +128,13 @@ return common(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  invalidCredentials,TResult Function()?  unauthorized,TResult Function()?  duplicateBusinessNumber,TResult Function( CommonFailure failure)?  common,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  invalidCredentials,TResult Function()?  unauthorized,TResult Function()?  duplicateBusinessNumber,TResult Function( SocialProvider provider)?  socialAccountNotLinked,TResult Function( CommonFailure failure)?  common,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case InvalidCredentials() when invalidCredentials != null:
 return invalidCredentials();case Unauthorized() when unauthorized != null:
 return unauthorized();case DuplicateBusinessNumber() when duplicateBusinessNumber != null:
-return duplicateBusinessNumber();case CommonAuthFailure() when common != null:
+return duplicateBusinessNumber();case SocialAccountNotLinked() when socialAccountNotLinked != null:
+return socialAccountNotLinked(_that.provider);case CommonAuthFailure() when common != null:
 return common(_that.failure);case _:
   return orElse();
 
@@ -149,12 +153,13 @@ return common(_that.failure);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  invalidCredentials,required TResult Function()  unauthorized,required TResult Function()  duplicateBusinessNumber,required TResult Function( CommonFailure failure)  common,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  invalidCredentials,required TResult Function()  unauthorized,required TResult Function()  duplicateBusinessNumber,required TResult Function( SocialProvider provider)  socialAccountNotLinked,required TResult Function( CommonFailure failure)  common,}) {final _that = this;
 switch (_that) {
 case InvalidCredentials():
 return invalidCredentials();case Unauthorized():
 return unauthorized();case DuplicateBusinessNumber():
-return duplicateBusinessNumber();case CommonAuthFailure():
+return duplicateBusinessNumber();case SocialAccountNotLinked():
+return socialAccountNotLinked(_that.provider);case CommonAuthFailure():
 return common(_that.failure);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -169,12 +174,13 @@ return common(_that.failure);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  invalidCredentials,TResult? Function()?  unauthorized,TResult? Function()?  duplicateBusinessNumber,TResult? Function( CommonFailure failure)?  common,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  invalidCredentials,TResult? Function()?  unauthorized,TResult? Function()?  duplicateBusinessNumber,TResult? Function( SocialProvider provider)?  socialAccountNotLinked,TResult? Function( CommonFailure failure)?  common,}) {final _that = this;
 switch (_that) {
 case InvalidCredentials() when invalidCredentials != null:
 return invalidCredentials();case Unauthorized() when unauthorized != null:
 return unauthorized();case DuplicateBusinessNumber() when duplicateBusinessNumber != null:
-return duplicateBusinessNumber();case CommonAuthFailure() when common != null:
+return duplicateBusinessNumber();case SocialAccountNotLinked() when socialAccountNotLinked != null:
+return socialAccountNotLinked(_that.provider);case CommonAuthFailure() when common != null:
 return common(_that.failure);case _:
   return null;
 
@@ -278,6 +284,72 @@ String toString() {
 
 
 
+
+/// @nodoc
+
+
+class SocialAccountNotLinked implements AuthFailure {
+  const SocialAccountNotLinked(this.provider);
+  
+
+ final  SocialProvider provider;
+
+/// Create a copy of AuthFailure
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SocialAccountNotLinkedCopyWith<SocialAccountNotLinked> get copyWith => _$SocialAccountNotLinkedCopyWithImpl<SocialAccountNotLinked>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SocialAccountNotLinked&&(identical(other.provider, provider) || other.provider == provider));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,provider);
+
+@override
+String toString() {
+  return 'AuthFailure.socialAccountNotLinked(provider: $provider)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SocialAccountNotLinkedCopyWith<$Res> implements $AuthFailureCopyWith<$Res> {
+  factory $SocialAccountNotLinkedCopyWith(SocialAccountNotLinked value, $Res Function(SocialAccountNotLinked) _then) = _$SocialAccountNotLinkedCopyWithImpl;
+@useResult
+$Res call({
+ SocialProvider provider
+});
+
+
+
+
+}
+/// @nodoc
+class _$SocialAccountNotLinkedCopyWithImpl<$Res>
+    implements $SocialAccountNotLinkedCopyWith<$Res> {
+  _$SocialAccountNotLinkedCopyWithImpl(this._self, this._then);
+
+  final SocialAccountNotLinked _self;
+  final $Res Function(SocialAccountNotLinked) _then;
+
+/// Create a copy of AuthFailure
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? provider = null,}) {
+  return _then(SocialAccountNotLinked(
+null == provider ? _self.provider : provider // ignore: cast_nullable_to_non_nullable
+as SocialProvider,
+  ));
+}
+
+
+}
 
 /// @nodoc
 

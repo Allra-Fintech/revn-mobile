@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/errors/common_failure.dart';
 import '../../application/controllers/sign_in_controller.dart';
 import '../../domain/failures/auth_failure.dart';
 import '../providers/sign_in_form_provider.dart';
+import '../utils/auth_failure_message.dart';
 import '../utils/business_number_text_input_formatter.dart';
 
 class SignInForm extends ConsumerStatefulWidget {
@@ -133,29 +133,20 @@ class _SignInFormState extends ConsumerState<SignInForm> {
     }
 
     ref.listen(signInControllerProvider, (previous, next) {
-      next.whenOrNull(
-        error: (error, stackTrace) {
-          final message = switch (error) {
-            InvalidCredentials() => '사업자번호 또는 비밀번호를 확인해주세요.',
-            Unauthorized() => '인증이 만료되었거나 유효하지 않습니다.',
-            DuplicateBusinessNumber() => '이미 가입된 사업자번호입니다.',
-            CommonAuthFailure(:final failure) => switch (failure) {
-              NetworkFailure() => '네트워크 연결을 확인해주세요.',
-              StorageFailure() => '기기 저장소 접근에 실패했습니다.',
-              ServerFailure(:final message) => message ?? '서버 오류가 발생했습니다.',
-              UnknownFailure(:final message) => message ?? '알 수 없는 오류가 발생했습니다.',
-            },
-            _ => '로그인에 실패했습니다.',
-          };
+      if (previous?.submission.isLoading == true && next.submission.hasError) {
+        final failure = next.submission.error! as AuthFailure;
+        final message = switch (failure) {
+          InvalidCredentials() => '사업자번호 또는 비밀번호를 확인해주세요.',
+          _ => authFailureMessage(failure),
+        };
 
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(message)));
-        },
-      );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+      }
     });
 
-    final isLoading = signInState.isLoading;
+    final isLoading = signInState.submission.isLoading;
     final autovalidateMode = _showValidationErrors
         ? AutovalidateMode.onUserInteraction
         : AutovalidateMode.disabled;

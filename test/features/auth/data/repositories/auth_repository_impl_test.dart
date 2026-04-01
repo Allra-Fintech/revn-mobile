@@ -9,6 +9,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:revn/features/auth/data/dtos/sign_in_response_dto.dart';
 import 'package:revn/features/auth/data/dtos/user_dto.dart';
 import 'package:revn/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:revn/features/auth/domain/entities/social_provider.dart';
 import 'package:revn/features/auth/domain/failures/auth_failure.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
@@ -232,6 +233,132 @@ void main() {
     });
   });
 
+  group('signInWithSocial', () {
+    test('성공 시 토큰 저장 후 CurrentUser를 반환한다', () async {
+      const response = SignInResponseDto(
+        accessToken: 'access-token',
+        refreshToken: 'refresh-token',
+        user: UserDto(
+          id: 'social-user',
+          businessNumber: '1234567890',
+          username: 'Social Owner',
+        ),
+      );
+
+      when(
+        () => remoteDataSource.signInWithSocial(
+          provider: SocialProvider.kakao,
+          accessToken: 'social-token',
+        ),
+      ).thenAnswer((_) async => response);
+
+      when(
+        () => localDataSource.saveTokens(
+          accessToken: 'access-token',
+          refreshToken: 'refresh-token',
+        ),
+      ).thenAnswer((_) async {});
+
+      final result = await repository
+          .signInWithSocial(
+            provider: SocialProvider.kakao,
+            accessToken: 'social-token',
+          )
+          .run();
+
+      expect(result.isRight(), true);
+      result.match((_) => fail('Right expected'), (user) {
+        expect(user.id, 'social-user');
+        expect(user.username, 'Social Owner');
+      });
+    });
+
+    test('404 에러면 socialAccountNotLinked failure를 반환한다', () async {
+      when(
+        () => remoteDataSource.signInWithSocial(
+          provider: SocialProvider.kakao,
+          accessToken: any(named: 'accessToken'),
+        ),
+      ).thenThrow(
+        DioException.badResponse(
+          statusCode: 404,
+          requestOptions: RequestOptions(path: SocialProvider.kakao.signInPath),
+          response: Response<Map<String, dynamic>>(
+            requestOptions: RequestOptions(
+              path: SocialProvider.kakao.signInPath,
+            ),
+            statusCode: 404,
+            data: const {'message': '연동된 소셜 계정이 없습니다.'},
+          ),
+        ),
+      );
+
+      final result = await repository
+          .signInWithSocial(
+            provider: SocialProvider.kakao,
+            accessToken: 'social-token',
+          )
+          .run();
+
+      expect(result.isLeft(), true);
+      result.match((failure) {
+        expect(
+          failure,
+          const AuthFailure.socialAccountNotLinked(SocialProvider.kakao),
+        );
+      }, (_) => fail('Left expected'));
+    });
+  });
+
+  group('linkSocialAccount', () {
+    test('저장된 app access token으로 연동 요청을 보낸다', () async {
+      when(
+        () => localDataSource.getAccessToken(),
+      ).thenAnswer((_) async => 'app-access-token');
+      when(
+        () => remoteDataSource.linkSocialAccount(
+          provider: SocialProvider.kakao,
+          accessToken: 'social-token',
+          appAccessToken: 'app-access-token',
+        ),
+      ).thenAnswer((_) async {});
+
+      final result = await repository
+          .linkSocialAccount(
+            provider: SocialProvider.kakao,
+            accessToken: 'social-token',
+          )
+          .run();
+
+      expect(result, const Right(unit));
+      verify(
+        () => remoteDataSource.linkSocialAccount(
+          provider: SocialProvider.kakao,
+          accessToken: 'social-token',
+          appAccessToken: 'app-access-token',
+        ),
+      ).called(1);
+    });
+
+    test('저장된 app access token이 없으면 storage failure를 반환한다', () async {
+      when(
+        () => localDataSource.getAccessToken(),
+      ).thenAnswer((_) async => null);
+
+      final result = await repository
+          .linkSocialAccount(
+            provider: SocialProvider.kakao,
+            accessToken: 'social-token',
+          )
+          .run();
+
+      expect(result.isLeft(), true);
+      result.match((failure) {
+        expect(failure, const AuthFailure.common(CommonFailure.storage()));
+      }, (_) => fail('Left expected'));
+    });
+  });
+
   group('restoreSession', () {
     test('access token이 없으면 Right(null)을 반환한다', () async {
       when(
@@ -247,7 +374,11 @@ void main() {
         (user) => expect(user, isNull),
       );
 
-      verifyNever(() => remoteDataSource.getMe());
+      verifyNever(
+        () => remoteDataSource.getMe(
+          appAccessToken: any(named: 'appAccessToken'),
+        ),
+      );
     });
 
     test('access token이 있으면 getMe 후 user를 반환한다', () async {
@@ -255,7 +386,9 @@ void main() {
         () => localDataSource.getAccessToken(),
       ).thenAnswer((_) async => 'access-token');
 
-      when(() => remoteDataSource.getMe()).thenAnswer(
+      when(
+        () => remoteDataSource.getMe(appAccessToken: 'access-token'),
+      ).thenAnswer(
         (_) async => const UserDto(
           id: '1',
           businessNumber: '1234567890',
@@ -272,7 +405,9 @@ void main() {
         expect(user!.businessNumber, '1234567890');
       });
 
-      verify(() => remoteDataSource.getMe()).called(1);
+      verify(
+        () => remoteDataSource.getMe(appAccessToken: 'access-token'),
+      ).called(1);
     });
   });
 

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_providers.dart';
 import '../states/sign_up_controller_state.dart';
 import '../../domain/entities/current_user.dart';
+import 'social_auth_controller.dart';
 
 final signUpControllerProvider =
     NotifierProvider.autoDispose<SignUpController, SignUpControllerState>(
@@ -59,14 +60,18 @@ class SignUpController extends Notifier<SignUpControllerState> {
     ).run();
 
     return result.match(
-      (failure) {
+      (failure) async {
         state = state.copyWith(
           submission: AsyncError<void>(failure, StackTrace.current),
           signedUpUser: null,
         );
         return null;
       },
-      (user) {
+      (user) async {
+        await ref
+            .read(socialAuthControllerProvider.notifier)
+            .completePendingLink(user);
+
         state = state.copyWith(
           submission: const AsyncData<void>(null),
           signedUpUser: user,
@@ -74,5 +79,16 @@ class SignUpController extends Notifier<SignUpControllerState> {
         return user;
       },
     );
+  }
+
+  Future<void> retryPendingSocialLink() async {
+    final user = state.signedUpUser;
+    if (user == null) {
+      return;
+    }
+
+    await ref
+        .read(socialAuthControllerProvider.notifier)
+        .retryPendingLink(user);
   }
 }

@@ -3,6 +3,7 @@ import 'package:fpdart/fpdart.dart';
 
 import '../../../../core/errors/common_failure.dart';
 import '../../domain/entities/current_user.dart';
+import '../../domain/entities/social_provider.dart';
 import '../../domain/failures/auth_failure.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_data_source.dart';
@@ -51,6 +52,21 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  AuthResultFuture<CurrentUser> signInWithSocial({
+    required SocialProvider provider,
+    required String accessToken,
+  }) {
+    return TaskEither.tryCatch(() async {
+      final response = await _remoteDataSource.signInWithSocial(
+        provider: provider,
+        accessToken: accessToken,
+      );
+
+      return _persistSession(response);
+    }, _mapError);
+  }
+
+  @override
   AuthResultFuture<CurrentUser> signUp({
     required String businessNumber,
     required String password,
@@ -66,6 +82,28 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  AuthResultFuture<Unit> linkSocialAccount({
+    required SocialProvider provider,
+    required String accessToken,
+  }) {
+    return TaskEither.tryCatch(() async {
+      final appAccessToken = await _localDataSource.getAccessToken();
+
+      if (appAccessToken == null || appAccessToken.isEmpty) {
+        throw StateError('App access token is not available.');
+      }
+
+      await _remoteDataSource.linkSocialAccount(
+        provider: provider,
+        accessToken: accessToken,
+        appAccessToken: appAccessToken,
+      );
+
+      return unit;
+    }, _mapError);
+  }
+
+  @override
   AuthResultFuture<CurrentUser?> restoreSession() {
     return TaskEither.tryCatch(() async {
       final accessToken = await _localDataSource.getAccessToken();
@@ -74,7 +112,9 @@ class AuthRepositoryImpl implements AuthRepository {
         return null;
       }
 
-      final userDto = await _remoteDataSource.getMe();
+      final userDto = await _remoteDataSource.getMe(
+        appAccessToken: accessToken,
+      );
       return userDto.toEntity();
     }, _mapError);
   }
@@ -95,6 +135,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
       if (statusCode == 401) {
         return const AuthFailure.unauthorized();
+      }
+
+      final socialProvider = _socialProviderForSignInPath(path);
+      if (socialProvider != null && statusCode == 404) {
+        return AuthFailure.socialAccountNotLinked(socialProvider);
       }
 
       if (_isDuplicateBusinessNumberVerificationError(
@@ -118,6 +163,10 @@ class AuthRepositoryImpl implements AuthRepository {
       return AuthFailure.common(CommonFailure.server(message));
     }
 
+    if (error is StateError) {
+      return const AuthFailure.common(CommonFailure.storage());
+    }
+
     if (error is FormatException) {
       return AuthFailure.common(CommonFailure.unknown(error.message));
     }
@@ -131,6 +180,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }) {
     return path == '/auth/business-number/verify' &&
         message == _duplicateBusinessNumberMessage;
+  }
+
+  SocialProvider? _socialProviderForSignInPath(String path) {
+    return SocialProvider.fromSignInPath(path);
   }
 
   Future<CurrentUser> _persistSession(SignInResponseDto response) async {

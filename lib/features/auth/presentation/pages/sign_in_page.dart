@@ -60,11 +60,6 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    '로그인',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 32),
                   SignInForm(
                     initialBusinessNumber: widget.initialBusinessNumber,
                   ),

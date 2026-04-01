@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 
 import '../entities/current_user.dart';
+import '../entities/social_provider.dart';
 import '../failures/auth_failure.dart';
 
 typedef AuthResultFuture<T> = TaskEither<AuthFailure, T>;
@@ -13,9 +14,19 @@ abstract interface class AuthRepository {
     required String password,
   });
 
+  AuthResultFuture<CurrentUser> signInWithSocial({
+    required SocialProvider provider,
+    required String accessToken,
+  });
+
   AuthResultFuture<CurrentUser> signUp({
     required String businessNumber,
     required String password,
+  });
+
+  AuthResultFuture<Unit> linkSocialAccount({
+    required SocialProvider provider,
+    required String accessToken,
   });
 
   AuthResultFuture<CurrentUser?> restoreSession();
