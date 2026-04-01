@@ -43,12 +43,19 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   void _showDuplicateBusinessNumberDialog(String businessNumber) {
     showDialog<void>(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (dialogContext) {
         return AlertDialog(
-          content: const Text('이미 가입된 사업자번호입니다. 로그인 화면으로 이동할게요.'),
+          title: const Text('이미 가입된 사업자번호'),
+          content: const Text('입력하신 사업자번호는 이미 등록되어 있습니다.\n로그인 화면으로 이동하시겠습니까?'),
           actions: [
             TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('취소'),
+            ),
+            FilledButton(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 context.go(
@@ -61,7 +68,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                   ).toString(),
                 );
               },
-              child: const Text('로그인하기'),
+              child: const Text('이동'),
             ),
           ],
         );
