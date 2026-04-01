@@ -8,13 +8,19 @@ abstract final class RevnTheme {
 
   static ThemeData _buildLightTheme() {
     final colorScheme = AppColors.lightColorScheme;
-
-    return ThemeData(
+    final baseTheme = ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.scaffoldBackground,
+    );
+
+    return baseTheme.copyWith(
       appBarTheme: AppComponentThemes.appBarTheme(colorScheme),
       cardTheme: AppComponentThemes.cardTheme(colorScheme),
+      inputDecorationTheme: AppComponentThemes.inputDecorationTheme(
+        colorScheme,
+        baseTheme.textTheme,
+      ),
     );
   }
 }

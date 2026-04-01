@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/widgets/revn_text_form_field.dart';
 import '../../application/controllers/sign_up_controller.dart';
 import '../providers/sign_up_flow_provider.dart';
 import '../utils/business_number_text_input_formatter.dart';
@@ -159,13 +160,14 @@ class _SignUpCredentialsStepState extends ConsumerState<SignUpCredentialsStep> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextFormField(
+              RevnTextFormField(
                 key: _businessNumberFieldKey,
                 controller: _businessNumberController,
                 autovalidateMode: autovalidateMode,
                 keyboardType: TextInputType.number,
                 enabled: !isBusy,
                 inputFormatters: [BusinessNumberTextInputFormatter()],
+                textInputAction: TextInputAction.next,
                 onChanged: (value) {
                   flowNotifier.updateBusinessNumber(value);
                   ref
@@ -173,10 +175,8 @@ class _SignUpCredentialsStepState extends ConsumerState<SignUpCredentialsStep> {
                       .resetVerification();
                 },
                 validator: _validateBusinessNumber,
-                decoration: const InputDecoration(
-                  labelText: '사업자번호',
-                  hintText: '123-45-67890',
-                ),
+                labelText: '사업자번호',
+                hintText: '123-45-67890',
               ),
               const SizedBox(height: 12),
               OutlinedButton(
@@ -206,46 +206,42 @@ class _SignUpCredentialsStepState extends ConsumerState<SignUpCredentialsStep> {
                 ),
               ),
               const SizedBox(height: 20),
-              TextFormField(
+              RevnTextFormField(
                 controller: _passwordController,
                 autovalidateMode: autovalidateMode,
                 obscureText: flow.obscurePassword,
                 enabled: !isBusy,
+                textInputAction: TextInputAction.next,
                 onChanged: flowNotifier.updatePassword,
                 validator: _validatePassword,
-                decoration: InputDecoration(
-                  labelText: '비밀번호',
-                  suffixIcon: IconButton(
-                    onPressed: isBusy
-                        ? null
-                        : flowNotifier.toggleObscurePassword,
-                    icon: Icon(
-                      flow.obscurePassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                    ),
+                labelText: '비밀번호',
+                suffixIcon: IconButton(
+                  onPressed: isBusy ? null : flowNotifier.toggleObscurePassword,
+                  icon: Icon(
+                    flow.obscurePassword
+                        ? Icons.visibility_off
+                        : Icons.visibility,
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              RevnTextFormField(
                 controller: _passwordConfirmationController,
                 autovalidateMode: autovalidateMode,
                 obscureText: flow.obscurePasswordConfirmation,
                 enabled: !isBusy,
+                textInputAction: TextInputAction.done,
                 onChanged: flowNotifier.updatePasswordConfirmation,
                 validator: _validatePasswordConfirmation,
-                decoration: InputDecoration(
-                  labelText: '비밀번호 확인',
-                  suffixIcon: IconButton(
-                    onPressed: isBusy
-                        ? null
-                        : flowNotifier.toggleObscurePasswordConfirmation,
-                    icon: Icon(
-                      flow.obscurePasswordConfirmation
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                    ),
+                labelText: '비밀번호 확인',
+                suffixIcon: IconButton(
+                  onPressed: isBusy
+                      ? null
+                      : flowNotifier.toggleObscurePasswordConfirmation,
+                  icon: Icon(
+                    flow.obscurePasswordConfirmation
+                        ? Icons.visibility_off
+                        : Icons.visibility,
                   ),
                 ),
               ),
