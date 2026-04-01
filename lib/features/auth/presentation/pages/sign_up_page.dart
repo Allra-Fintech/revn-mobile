@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:revn/core/errors/common_failure.dart';
+import 'package:revn/features/auth/application/controllers/social_auth_controller.dart';
 import 'package:revn/features/auth/application/controllers/sign_up_controller.dart';
 import 'package:revn/features/auth/application/states/sign_up_controller_state.dart';
+import 'package:revn/features/auth/domain/entities/pending_social_link.dart';
 import 'package:revn/features/auth/domain/failures/auth_failure.dart';
 import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
 
 import '../providers/sign_up_flow_provider.dart';
+import '../utils/auth_failure_message.dart';
 import '../widgets/sign_up_agreements_step.dart';
 import '../widgets/sign_up_credentials_step.dart';
+import '../widgets/social_link_notice_card.dart';
 import '../widgets/sign_up_welcome_step.dart';
 
 class SignUpPage extends ConsumerStatefulWidget {
@@ -20,20 +23,6 @@ class SignUpPage extends ConsumerStatefulWidget {
 }
 
 class _SignUpPageState extends ConsumerState<SignUpPage> {
-  String _messageForFailure(AuthFailure failure) {
-    return switch (failure) {
-      InvalidCredentials() => '입력한 정보를 다시 확인해주세요.',
-      Unauthorized() => '인증이 만료되었거나 유효하지 않습니다.',
-      DuplicateBusinessNumber() => '이미 가입된 사업자번호입니다.',
-      CommonAuthFailure(:final failure) => switch (failure) {
-        NetworkFailure() => '네트워크 연결을 확인해주세요.',
-        StorageFailure() => '기기 저장소 접근에 실패했습니다.',
-        ServerFailure(:final message) => message ?? '요청 처리 중 오류가 발생했습니다.',
-        UnknownFailure(:final message) => message ?? '알 수 없는 오류가 발생했습니다.',
-      },
-    };
-  }
-
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(
       context,
@@ -89,12 +78,12 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
           ref.read(signUpFlowProvider).businessNumber,
         );
       } else {
-        _showSnackBar(_messageForFailure(failure));
+        _showSnackBar(authFailureMessage(failure));
       }
     }
 
     if (previous?.submission.isLoading == true && next.submission.hasError) {
-      _showSnackBar(_messageForFailure(next.submission.error! as AuthFailure));
+      _showSnackBar(authFailureMessage(next.submission.error! as AuthFailure));
     }
 
     final signedUpUser = next.signedUpUser;
@@ -106,6 +95,12 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     final flow = ref.watch(signUpFlowProvider);
+    final socialAuthState = ref.watch(socialAuthControllerProvider);
+    final signUpState = ref.watch(signUpControllerProvider);
+    final pendingLink = socialAuthState.pendingLink;
+    final shouldShowRetryActions =
+        pendingLink?.linkStatus == SocialLinkStatus.failed &&
+        signUpState.signedUpUser != null;
 
     ref.listen(signUpControllerProvider, _listenToSignUpState);
 
@@ -125,6 +120,39 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (pendingLink != null) ...[
+                    SocialLinkNoticeCard(
+                      title: shouldShowRetryActions
+                          ? '${pendingLink.provider.displayName} 연동을 완료하지 못했습니다'
+                          : '${pendingLink.provider.displayName} 계정을 연결하는 중입니다',
+                      description: shouldShowRetryActions
+                          ? pendingLink.lastErrorMessage ??
+                                '${pendingLink.provider.displayName} 계정 연동에 실패했습니다.'
+                          : '${pendingLink.provider.displayName} 로그인 후 회원가입이 완료되면 계정이 자동으로 연동됩니다.',
+                      primaryActionLabel: shouldShowRetryActions
+                          ? '다시 시도'
+                          : null,
+                      onPrimaryAction: shouldShowRetryActions
+                          ? ref
+                                .read(signUpControllerProvider.notifier)
+                                .retryPendingSocialLink
+                          : null,
+                      secondaryActionLabel: shouldShowRetryActions
+                          ? '나중에'
+                          : '취소',
+                      onSecondaryAction: shouldShowRetryActions
+                          ? ref
+                                .read(socialAuthControllerProvider.notifier)
+                                .clearPendingLink
+                          : ref
+                                .read(socialAuthControllerProvider.notifier)
+                                .clearPendingLink,
+                      onDismiss: ref
+                          .read(socialAuthControllerProvider.notifier)
+                          .clearPendingLink,
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 220),
                     switchInCurve: Curves.easeOut,
