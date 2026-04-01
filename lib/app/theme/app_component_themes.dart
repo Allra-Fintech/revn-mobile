@@ -50,6 +50,7 @@ abstract final class AppComponentThemes {
     filled: false,
     constraints: inputConstraints,
     contentPadding: inputContentPadding,
+    floatingLabelBehavior: FloatingLabelBehavior.always,
     labelStyle: textTheme.bodyMedium?.copyWith(
       color: colorScheme.onSurfaceVariant,
       fontWeight: FontWeight.w600,
@@ -61,7 +62,7 @@ abstract final class AppComponentThemes {
       letterSpacing: 0.1,
     ),
     hintStyle: textTheme.bodyMedium?.copyWith(
-      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.65),
+      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
       letterSpacing: 0.1,
     ),
     helperStyle: textTheme.bodySmall?.copyWith(
