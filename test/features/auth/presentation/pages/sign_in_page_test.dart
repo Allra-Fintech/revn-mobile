@@ -92,12 +92,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(SignInPage), findsOneWidget);
-    expect(find.text('카카오 로그인은 완료되었습니다'), findsOneWidget);
+    expect(find.text('카카오 계정 연동'), findsOneWidget);
     expect(
-      find.text('카카오 토큰은 이미 확보되었습니다.\n사업자번호로 로그인하면 계정이 자동으로 연동됩니다.'),
+      find.text('현재 카카오 계정과 연동된 사업자번호가 없습니다. \n최초 사업자번호로 로그인 후 카카오 로그인이 가능합니다.'),
       findsOneWidget,
     );
-    expect(find.widgetWithText(OutlinedButton, '취소'), findsOneWidget);
+    expect(find.byIcon(Icons.close), findsOneWidget);
     expect(find.widgetWithText(FilledButton, '카카오 로그인'), findsNothing);
     expect(find.widgetWithText(TextButton, '회원가입'), findsOneWidget);
   });
@@ -128,7 +128,7 @@ void main() {
     expect(find.text('회원가입 페이지'), findsOneWidget);
   });
 
-  testWidgets('연결 안내 상태에서 취소하면 카카오 로그인 버튼이 다시 보인다', (tester) async {
+  testWidgets('연결 안내 상태에서 X 버튼 탭 시 카카오 로그인 버튼이 다시 보인다', (tester) async {
     when(
       () => socialTokenProvider.getAccessToken(SocialProvider.kakao),
     ).thenAnswer((_) async => 'unlinked-social-token');
@@ -149,12 +149,12 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, '카카오 로그인'));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(OutlinedButton, '취소'), findsOneWidget);
+    expect(find.byIcon(Icons.close), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(OutlinedButton, '취소'));
+    await tester.tap(find.byIcon(Icons.close));
     await tester.pumpAndSettle();
 
     expect(find.widgetWithText(FilledButton, '카카오 로그인'), findsOneWidget);
-    expect(find.text('카카오 로그인은 완료되었습니다'), findsNothing);
+    expect(find.text('카카오 계정 연동'), findsNothing);
   });
 }

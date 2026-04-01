@@ -137,16 +137,6 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                                 .read(signUpControllerProvider.notifier)
                                 .retryPendingSocialLink
                           : null,
-                      secondaryActionLabel: shouldShowRetryActions
-                          ? '나중에'
-                          : '취소',
-                      onSecondaryAction: shouldShowRetryActions
-                          ? ref
-                                .read(socialAuthControllerProvider.notifier)
-                                .clearPendingLink
-                          : ref
-                                .read(socialAuthControllerProvider.notifier)
-                                .clearPendingLink,
                       onDismiss: ref
                           .read(socialAuthControllerProvider.notifier)
                           .clearPendingLink,

@@ -60,19 +60,15 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  SignInForm(
-                    initialBusinessNumber: widget.initialBusinessNumber,
-                  ),
                   if (pendingLink != null) ...[
                     SocialLinkNoticeCard(
                       title: shouldShowLinkFailureActions
                           ? '${pendingLink.provider.displayName} 연동을 완료하지 못했습니다'
-                          : '${pendingLink.provider.displayName} 로그인은 완료되었습니다',
+                          : '${pendingLink.provider.displayName} 계정 연동',
                       description: shouldShowLinkFailureActions
                           ? pendingLink.lastErrorMessage ??
                                 '${pendingLink.provider.displayName} 계정 연동에 실패했습니다.'
-                          : '${pendingLink.provider.displayName} 토큰은 이미 확보되었습니다.\n'
-                                '사업자번호로 로그인하면 계정이 자동으로 연동됩니다.',
+                          : '현재 카카오 계정과 연동된 사업자번호가 없습니다. \n최초 사업자번호로 로그인 후 카카오 로그인이 가능합니다.',
                       primaryActionLabel: shouldShowLinkFailureActions
                           ? '다시 시도'
                           : null,
@@ -81,16 +77,6 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                                 .read(signInControllerProvider.notifier)
                                 .retryPendingSocialLink
                           : null,
-                      secondaryActionLabel: shouldShowLinkFailureActions
-                          ? '나중에'
-                          : '취소',
-                      onSecondaryAction: shouldShowLinkFailureActions
-                          ? ref
-                                .read(signInControllerProvider.notifier)
-                                .completeSignInWithoutSocialLink
-                          : ref
-                                .read(socialAuthControllerProvider.notifier)
-                                .clearPendingLink,
                       onDismiss: shouldShowLinkFailureActions
                           ? ref
                                 .read(signInControllerProvider.notifier)
@@ -101,6 +87,9 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                     ),
                     const SizedBox(height: 24),
                   ],
+                  SignInForm(
+                    initialBusinessNumber: widget.initialBusinessNumber,
+                  ),
 
                   if (pendingLink == null) ...[
                     const SizedBox(height: 16),

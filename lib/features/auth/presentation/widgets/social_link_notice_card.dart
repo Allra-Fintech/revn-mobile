@@ -79,63 +79,71 @@ class _SocialLinkNoticeCardState extends State<SocialLinkNoticeCard> {
                   ),
                   border: Border.all(color: colorScheme.outlineVariant),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Stack(
                   children: [
-                    Row(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
+                        Padding(
+                          padding: widget.onDismiss != null
+                              ? const EdgeInsets.only(right: 32)
+                              : EdgeInsets.zero,
                           child: Text(
                             widget.title,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
+                            style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                         ),
-                        if (widget.onDismiss != null)
-                          IconButton(
-                            onPressed: _handleDismiss,
-                            icon: const Icon(Icons.close, size: 20),
-                            color: colorScheme.onSurfaceVariant,
-                            constraints: const BoxConstraints(),
-                            padding: EdgeInsets.zero,
-                            visualDensity: VisualDensity.compact,
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.description,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: colorScheme.onSurfaceVariant),
+                        ),
+                        if (hasActions) ...[
+                          const SizedBox(height: 16),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (widget.primaryActionLabel != null &&
+                                  widget.onPrimaryAction != null)
+                                FilledButton(
+                                  onPressed: widget.onPrimaryAction,
+                                  child: Text(widget.primaryActionLabel!),
+                                ),
+                              if (widget.primaryActionLabel != null &&
+                                  widget.onPrimaryAction != null &&
+                                  widget.secondaryActionLabel != null &&
+                                  widget.onSecondaryAction != null)
+                                const SizedBox(height: 12),
+                              if (widget.secondaryActionLabel != null &&
+                                  widget.onSecondaryAction != null)
+                                OutlinedButton(
+                                  onPressed: widget.onSecondaryAction,
+                                  child: Text(widget.secondaryActionLabel!),
+                                ),
+                            ],
                           ),
+                        ],
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      widget.description,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
+                    if (widget.onDismiss != null)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: InkWell(
+                          onTap: _handleDismiss,
+                          borderRadius: BorderRadius.circular(20),
+                          child: Padding(
+                            padding: const EdgeInsets.all(4),
+                            child: Icon(
+                              Icons.close,
+                              size: 20,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
                           ),
-                    ),
-                    if (hasActions) ...[
-                      const SizedBox(height: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (widget.primaryActionLabel != null &&
-                              widget.onPrimaryAction != null)
-                            FilledButton(
-                              onPressed: widget.onPrimaryAction,
-                              child: Text(widget.primaryActionLabel!),
-                            ),
-                          if (widget.primaryActionLabel != null &&
-                              widget.onPrimaryAction != null &&
-                              widget.secondaryActionLabel != null &&
-                              widget.onSecondaryAction != null)
-                            const SizedBox(height: 12),
-                          if (widget.secondaryActionLabel != null &&
-                              widget.onSecondaryAction != null)
-                            OutlinedButton(
-                              onPressed: widget.onSecondaryAction,
-                              child: Text(widget.secondaryActionLabel!),
-                            ),
-                        ],
+                        ),
                       ),
-                    ],
                   ],
                 ),
               ),
