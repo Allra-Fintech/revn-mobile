@@ -4,6 +4,30 @@
 
 ## Endpoints
 
+### `POST /auth/business-number/verify`
+
+Request:
+
+```json
+{
+  "businessNumber": "1234567890"
+}
+```
+
+Success response:
+
+```json
+{}
+```
+
+Failure response examples:
+
+```json
+{
+  "message": "이미 가입된 사업자번호입니다."
+}
+```
+
 ### `POST /auth/sign-in`
 
 Request:
@@ -37,6 +61,39 @@ Failure response examples:
 }
 ```
 
+### `POST /auth/sign-up`
+
+Request:
+
+```json
+{
+  "businessNumber": "1234567890",
+  "password": "1234"
+}
+```
+
+Success response:
+
+```json
+{
+  "accessToken": "mock-sign-up-access-token",
+  "refreshToken": "mock-sign-up-refresh-token",
+  "user": {
+    "id": "mock-user-sign-up",
+    "businessNumber": "1234567890",
+    "username": "New Owner"
+  }
+}
+```
+
+Failure response examples:
+
+```json
+{
+  "message": "이미 가입된 사업자번호입니다."
+}
+```
+
 ### `GET /auth/me`
 
 Success response:
@@ -53,6 +110,8 @@ Success response:
 
 `MockAuthRemoteDataSource`는 아래 사업자번호로 시나리오를 전환합니다. 비밀번호는 모두 `1234`를 사용합니다.
 
+- 사업자번호 인증 성공: `1234567890`
+- 사업자번호 인증 성공 후 회원가입 중복: `4090000000`
 - `1234567890`: 로그인 성공
 - `2000000000`: 빈 프로필 상태 성공
 - `4000000000`: validation error (`400`)

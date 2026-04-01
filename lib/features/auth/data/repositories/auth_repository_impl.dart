@@ -7,6 +7,7 @@ import '../../domain/failures/auth_failure.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_data_source.dart';
 import '../datasources/auth_remote_data_source.dart';
+import '../dtos/sign_in_response_dto.dart';
 import '../mappers/auth_mapper.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -20,6 +21,19 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthLocalDataSource _localDataSource;
 
   @override
+  AuthResultFuture<Unit> verifyBusinessNumber({
+    required String businessNumber,
+  }) {
+    return TaskEither.tryCatch(() async {
+      await _remoteDataSource.verifyBusinessNumber(
+        businessNumber: businessNumber,
+      );
+
+      return unit;
+    }, _mapError);
+  }
+
+  @override
   AuthResultFuture<CurrentUser> signIn({
     required String businessNumber,
     required String password,
@@ -30,12 +44,22 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
       );
 
-      await _localDataSource.saveTokens(
-        accessToken: response.accessToken,
-        refreshToken: response.refreshToken,
+      return _persistSession(response);
+    }, _mapError);
+  }
+
+  @override
+  AuthResultFuture<CurrentUser> signUp({
+    required String businessNumber,
+    required String password,
+  }) {
+    return TaskEither.tryCatch(() async {
+      final response = await _remoteDataSource.signUp(
+        businessNumber: businessNumber,
+        password: password,
       );
 
-      return response.user.toEntity();
+      return _persistSession(response);
     }, _mapError);
   }
 
@@ -64,12 +88,13 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthFailure _mapError(Object error, StackTrace stackTrace) {
     if (error is DioException) {
       final statusCode = error.response?.statusCode;
+      final path = error.requestOptions.path;
 
       if (statusCode == 401) {
         return const AuthFailure.unauthorized();
       }
 
-      if (statusCode == 400 || statusCode == 403) {
+      if (path == '/auth/sign-in' && (statusCode == 400 || statusCode == 403)) {
         return const AuthFailure.invalidCredentials();
       }
 
@@ -80,7 +105,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return const AuthFailure.common(CommonFailure.network());
       }
 
-      return AuthFailure.common(CommonFailure.server(error.message));
+      return AuthFailure.common(CommonFailure.server(_extractMessage(error)));
     }
 
     if (error is FormatException) {
@@ -88,5 +113,34 @@ class AuthRepositoryImpl implements AuthRepository {
     }
 
     return AuthFailure.common(CommonFailure.unknown(error.toString()));
+  }
+
+  Future<CurrentUser> _persistSession(SignInResponseDto response) async {
+    await _localDataSource.saveTokens(
+      accessToken: response.accessToken,
+      refreshToken: response.refreshToken,
+    );
+
+    return response.user.toEntity();
+  }
+
+  String? _extractMessage(DioException error) {
+    final data = error.response?.data;
+
+    if (data is Map<String, dynamic>) {
+      final message = data['message'];
+      if (message is String && message.trim().isNotEmpty) {
+        return message;
+      }
+    }
+
+    if (data is Map) {
+      final message = data['message'];
+      if (message is String && message.trim().isNotEmpty) {
+        return message;
+      }
+    }
+
+    return error.message;
   }
 }

@@ -9,6 +9,7 @@ class AuthMockFixtures {
   static const validationErrorBusinessNumber = '4000000000';
   static const unauthorizedBusinessNumber = '4010000000';
   static const timeoutBusinessNumber = '4080000000';
+  static const duplicateRegistrationBusinessNumber = '4090000000';
   static const invalidCredentialsBusinessNumber = '4030000000';
   static const defaultPassword = '1234';
 
@@ -32,6 +33,16 @@ class AuthMockFixtures {
     },
   };
 
+  static const successSignUpResponseJson = <String, dynamic>{
+    'accessToken': 'mock-sign-up-access-token',
+    'refreshToken': 'mock-sign-up-refresh-token',
+    'user': <String, dynamic>{
+      'id': 'mock-user-sign-up',
+      'businessNumber': successBusinessNumber,
+      'username': 'New Owner',
+    },
+  };
+
   static const meResponseJson = <String, dynamic>{
     'id': 'mock-user-1',
     'businessNumber': successBusinessNumber,
@@ -44,6 +55,10 @@ class AuthMockFixtures {
 
   static SignInResponseDto emptyStateSignInResponse() {
     return SignInResponseDto.fromJson(emptyStateSignInResponseJson);
+  }
+
+  static SignInResponseDto successSignUpResponse() {
+    return SignInResponseDto.fromJson(successSignUpResponseJson);
   }
 
   static UserDto meResponse() {

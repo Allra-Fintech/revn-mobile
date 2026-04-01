@@ -1,26 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/common_failure.dart';
 import '../../application/controllers/sign_in_controller.dart';
 import '../../domain/failures/auth_failure.dart';
 import '../providers/sign_in_form_provider.dart';
-
-class BusinessNumberTextInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final formatted = formatBusinessNumber(newValue.text);
-
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-    );
-  }
-}
+import '../utils/business_number_text_input_formatter.dart';
 
 class SignInForm extends ConsumerStatefulWidget {
   const SignInForm({super.key});

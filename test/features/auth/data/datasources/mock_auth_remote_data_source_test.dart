@@ -10,6 +10,39 @@ void main() {
     dataSource = MockAuthRemoteDataSource(latency: Duration.zero);
   });
 
+  test('verifyBusinessNumber success scenario completes', () async {
+    await dataSource.verifyBusinessNumber(
+      businessNumber: AuthMockFixtures.successBusinessNumber,
+    );
+  });
+
+  test(
+    'verifyBusinessNumber duplicate registration scenario still verifies',
+    () async {
+      await dataSource.verifyBusinessNumber(
+        businessNumber: AuthMockFixtures.duplicateRegistrationBusinessNumber,
+      );
+    },
+  );
+
+  test(
+    'verifyBusinessNumber validation scenario throws 400 dio exception',
+    () async {
+      await expectLater(
+        () => dataSource.verifyBusinessNumber(
+          businessNumber: AuthMockFixtures.validationErrorBusinessNumber,
+        ),
+        throwsA(
+          isA<DioException>().having(
+            (error) => error.response?.statusCode,
+            'statusCode',
+            400,
+          ),
+        ),
+      );
+    },
+  );
+
   test('success credentials return mock sign in response', () async {
     final response = await dataSource.signIn(
       businessNumber: AuthMockFixtures.successBusinessNumber,
@@ -21,6 +54,35 @@ void main() {
       AuthMockFixtures.successBusinessNumber,
     );
     expect(response.user.username, 'Mock Owner');
+  });
+
+  test('signUp success scenario returns session response', () async {
+    final response = await dataSource.signUp(
+      businessNumber: AuthMockFixtures.successBusinessNumber,
+      password: AuthMockFixtures.defaultPassword,
+    );
+
+    expect(
+      response.user.businessNumber,
+      AuthMockFixtures.successBusinessNumber,
+    );
+    expect(response.user.username, 'New Owner');
+  });
+
+  test('signUp duplicate scenario throws 409 dio exception', () async {
+    await expectLater(
+      () => dataSource.signUp(
+        businessNumber: AuthMockFixtures.duplicateRegistrationBusinessNumber,
+        password: AuthMockFixtures.defaultPassword,
+      ),
+      throwsA(
+        isA<DioException>().having(
+          (error) => error.response?.statusCode,
+          'statusCode',
+          409,
+        ),
+      ),
+    );
   });
 
   test('empty-state credentials return an empty username scenario', () async {

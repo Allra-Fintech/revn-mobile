@@ -12,7 +12,9 @@ import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../usecases/restore_session_usecase.dart';
 import '../usecases/sign_in_usecase.dart';
+import '../usecases/sign_up_usecase.dart';
 import '../usecases/sign_out_usecase.dart';
+import '../usecases/verify_business_number_usecase.dart';
 
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
   final appConfig = ref.watch(appConfigProvider);
@@ -42,6 +44,17 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 final signInUseCaseProvider = Provider<SignInUseCase>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
   return SignInUseCase(authRepository);
+});
+
+final verifyBusinessNumberUseCaseProvider =
+    Provider<VerifyBusinessNumberUseCase>((ref) {
+      final authRepository = ref.watch(authRepositoryProvider);
+      return VerifyBusinessNumberUseCase(authRepository);
+    });
+
+final signUpUseCaseProvider = Provider<SignUpUseCase>((ref) {
+  final authRepository = ref.watch(authRepositoryProvider);
+  return SignUpUseCase(authRepository);
 });
 
 final restoreSessionUseCaseProvider = Provider<RestoreSessionUseCase>((ref) {

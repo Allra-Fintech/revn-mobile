@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:revn/core/errors/common_failure.dart';
 import 'package:revn/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:revn/features/auth/data/datasources/auth_remote_data_source.dart';
 
@@ -98,6 +100,104 @@ void main() {
 
       result.match((failure) {
         expect(failure, const AuthFailure.unauthorized());
+      }, (_) => fail('Left expected'));
+    });
+  });
+
+  group('verifyBusinessNumber', () {
+    test('성공 시 unit을 반환한다', () async {
+      when(
+        () =>
+            remoteDataSource.verifyBusinessNumber(businessNumber: '1234567890'),
+      ).thenAnswer((_) async {});
+
+      final result = await repository
+          .verifyBusinessNumber(businessNumber: '1234567890')
+          .run();
+
+      expect(result, const Right(unit));
+      verify(
+        () =>
+            remoteDataSource.verifyBusinessNumber(businessNumber: '1234567890'),
+      ).called(1);
+    });
+  });
+
+  group('signUp', () {
+    test('성공 시 토큰 저장 후 CurrentUser를 반환한다', () async {
+      const response = SignInResponseDto(
+        accessToken: 'access-token',
+        refreshToken: 'refresh-token',
+        user: UserDto(
+          id: '2',
+          businessNumber: '1234567890',
+          username: 'New Owner',
+        ),
+      );
+
+      when(
+        () => remoteDataSource.signUp(
+          businessNumber: '1234567890',
+          password: '1234',
+        ),
+      ).thenAnswer((_) async => response);
+
+      when(
+        () => localDataSource.saveTokens(
+          accessToken: 'access-token',
+          refreshToken: 'refresh-token',
+        ),
+      ).thenAnswer((_) async {});
+
+      final result = await repository
+          .signUp(businessNumber: '1234567890', password: '1234')
+          .run();
+
+      expect(result.isRight(), true);
+
+      result.match((_) => fail('Right expected'), (user) {
+        expect(user.id, '2');
+        expect(user.businessNumber, '1234567890');
+        expect(user.username, 'New Owner');
+      });
+
+      verify(
+        () => localDataSource.saveTokens(
+          accessToken: 'access-token',
+          refreshToken: 'refresh-token',
+        ),
+      ).called(1);
+    });
+
+    test('409 에러면 message를 담은 common server failure를 반환한다', () async {
+      when(
+        () => remoteDataSource.signUp(
+          businessNumber: any(named: 'businessNumber'),
+          password: any(named: 'password'),
+        ),
+      ).thenThrow(
+        DioException.badResponse(
+          statusCode: 409,
+          requestOptions: RequestOptions(path: '/auth/sign-up'),
+          response: Response<Map<String, dynamic>>(
+            requestOptions: RequestOptions(path: '/auth/sign-up'),
+            statusCode: 409,
+            data: const {'message': '이미 가입된 사업자번호입니다.'},
+          ),
+        ),
+      );
+
+      final result = await repository
+          .signUp(businessNumber: '1234567890', password: '1234')
+          .run();
+
+      expect(result.isLeft(), true);
+
+      result.match((failure) {
+        expect(
+          failure,
+          const AuthFailure.common(CommonFailure.server('이미 가입된 사업자번호입니다.')),
+        );
       }, (_) => fail('Left expected'));
     });
   });

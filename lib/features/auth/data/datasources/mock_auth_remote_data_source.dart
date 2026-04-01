@@ -11,16 +11,51 @@ class MockAuthRemoteDataSource implements AuthRemoteDataSource {
   final Duration latency;
 
   @override
+  Future<void> verifyBusinessNumber({required String businessNumber}) async {
+    await Future<void>.delayed(latency);
+
+    final normalizedBusinessNumber = _normalizeBusinessNumber(businessNumber);
+
+    if (normalizedBusinessNumber.length != 10) {
+      throw _httpError(
+        path: '/auth/business-number/verify',
+        statusCode: 400,
+        message: '유효한 사업자번호를 입력해주세요.',
+      );
+    }
+
+    switch (normalizedBusinessNumber) {
+      case AuthMockFixtures.successBusinessNumber:
+      case AuthMockFixtures.duplicateRegistrationBusinessNumber:
+        return;
+      case AuthMockFixtures.validationErrorBusinessNumber:
+        throw _httpError(
+          path: '/auth/business-number/verify',
+          statusCode: 400,
+          message: '사업자번호 인증에 실패했습니다.',
+        );
+      case AuthMockFixtures.timeoutBusinessNumber:
+        throw _timeoutError(
+          path: '/auth/business-number/verify',
+          message: 'Mock connection timeout.',
+        );
+      default:
+        throw _httpError(
+          path: '/auth/business-number/verify',
+          statusCode: 400,
+          message: '확인 가능한 사업자번호를 입력해주세요.',
+        );
+    }
+  }
+
+  @override
   Future<SignInResponseDto> signIn({
     required String businessNumber,
     required String password,
   }) async {
     await Future<void>.delayed(latency);
 
-    final normalizedBusinessNumber = businessNumber.replaceAll(
-      RegExp(r'[^0-9]'),
-      '',
-    );
+    final normalizedBusinessNumber = _normalizeBusinessNumber(businessNumber);
 
     if (normalizedBusinessNumber.isEmpty || password.trim().isEmpty) {
       throw _httpError(
@@ -58,9 +93,55 @@ class MockAuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
+  Future<SignInResponseDto> signUp({
+    required String businessNumber,
+    required String password,
+  }) async {
+    await Future<void>.delayed(latency);
+
+    final normalizedBusinessNumber = _normalizeBusinessNumber(businessNumber);
+
+    if (normalizedBusinessNumber.isEmpty || password.trim().isEmpty) {
+      throw _httpError(
+        path: '/auth/sign-up',
+        statusCode: 400,
+        message: '사업자번호와 비밀번호를 입력해주세요.',
+      );
+    }
+
+    return switch (normalizedBusinessNumber) {
+      AuthMockFixtures.successBusinessNumber =>
+        AuthMockFixtures.successSignUpResponse(),
+      AuthMockFixtures.validationErrorBusinessNumber => throw _httpError(
+        path: '/auth/sign-up',
+        statusCode: 400,
+        message: '회원가입 정보를 다시 확인해주세요.',
+      ),
+      AuthMockFixtures.duplicateRegistrationBusinessNumber => throw _httpError(
+        path: '/auth/sign-up',
+        statusCode: 409,
+        message: '이미 가입된 사업자번호입니다.',
+      ),
+      AuthMockFixtures.timeoutBusinessNumber => throw _timeoutError(
+        path: '/auth/sign-up',
+        message: 'Mock connection timeout.',
+      ),
+      _ => throw _httpError(
+        path: '/auth/sign-up',
+        statusCode: 400,
+        message: '회원가입에 실패했습니다.',
+      ),
+    };
+  }
+
+  @override
   Future<UserDto> getMe() async {
     await Future<void>.delayed(latency);
     return AuthMockFixtures.meResponse();
+  }
+
+  String _normalizeBusinessNumber(String value) {
+    return value.replaceAll(RegExp(r'[^0-9]'), '');
   }
 
   DioException _httpError({
