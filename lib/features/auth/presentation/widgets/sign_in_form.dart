@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/common_failure.dart';
-import '../../../../core/widgets/revn_text_form_field.dart';
 import '../../application/controllers/sign_in_controller.dart';
 import '../../domain/failures/auth_failure.dart';
 import '../providers/sign_in_form_provider.dart';
@@ -169,7 +168,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              RevnTextFormField(
+              TextFormField(
                 controller: _businessNumberController,
                 autovalidateMode: autovalidateMode,
                 keyboardType: TextInputType.number,
@@ -180,11 +179,13 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                     .read(signInFormProvider.notifier)
                     .updateBusinessNumber,
                 validator: _validateBusinessNumber,
-                labelText: '사업자번호',
-                hintText: '123-45-67890',
+                decoration: const InputDecoration(
+                  labelText: '사업자번호',
+                  hintText: '123-45-67890',
+                ),
               ),
               const SizedBox(height: 16),
-              RevnTextFormField(
+              TextFormField(
                 controller: _passwordController,
                 autovalidateMode: autovalidateMode,
                 obscureText: form.obscurePassword,
@@ -192,17 +193,19 @@ class _SignInFormState extends ConsumerState<SignInForm> {
                 textInputAction: TextInputAction.done,
                 onChanged: ref.read(signInFormProvider.notifier).updatePassword,
                 validator: _validatePassword,
-                labelText: '비밀번호',
-                suffixIcon: IconButton(
-                  onPressed: isLoading
-                      ? null
-                      : ref
-                            .read(signInFormProvider.notifier)
-                            .toggleObscurePassword,
-                  icon: Icon(
-                    form.obscurePassword
-                        ? Icons.visibility_off
-                        : Icons.visibility,
+                decoration: InputDecoration(
+                  labelText: '비밀번호',
+                  suffixIcon: IconButton(
+                    onPressed: isLoading
+                        ? null
+                        : ref
+                              .read(signInFormProvider.notifier)
+                              .toggleObscurePassword,
+                    icon: Icon(
+                      form.obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
                   ),
                 ),
               ),

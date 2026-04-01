@@ -21,6 +21,18 @@ abstract final class RevnTheme {
         colorScheme,
         baseTheme.textTheme,
       ),
+      filledButtonTheme: AppComponentThemes.filledButtonTheme(
+        colorScheme,
+        baseTheme.textTheme,
+      ),
+      outlinedButtonTheme: AppComponentThemes.outlinedButtonTheme(
+        colorScheme,
+        baseTheme.textTheme,
+      ),
+      textButtonTheme: AppComponentThemes.textButtonTheme(
+        colorScheme,
+        baseTheme.textTheme,
+      ),
     );
   }
 }
