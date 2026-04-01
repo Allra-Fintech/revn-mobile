@@ -490,12 +490,12 @@ git commit -m "feat: improve SocialLinkNoticeCard UI with animations and dismiss
 ## Task 3: sign_in_page와 sign_up_page 업데이트
 
 **Files:**
-- Modify: `lib/features/auth/presentation/pages/sign_in_page.dart:69-96`
-- Modify: `lib/features/auth/presentation/pages/sign_up_page.dart:124-150`
+- Modify: `lib/features/auth/presentation/pages/sign_in_page.dart:68-98`
+- Modify: `lib/features/auth/presentation/pages/sign_up_page.dart:123-152`
 
 - [ ] **Step 3.1: sign_in_page에 onDismiss 파라미터 추가**
 
-`lib/features/auth/presentation/pages/sign_in_page.dart`의 69-96 라인을:
+`lib/features/auth/presentation/pages/sign_in_page.dart`의 68-98 라인을:
 
 ```dart
                   if (pendingLink != null) ...[
@@ -540,7 +540,7 @@ git commit -m "feat: improve SocialLinkNoticeCard UI with animations and dismiss
 
 - [ ] **Step 3.2: sign_up_page에 onDismiss 파라미터 추가**
 
-`lib/features/auth/presentation/pages/sign_up_page.dart`의 124-150 라인을:
+`lib/features/auth/presentation/pages/sign_up_page.dart`의 123-152 라인을:
 
 ```dart
                   if (pendingLink != null) ...[
@@ -629,13 +629,13 @@ Expected: No issues found
 - [ ] **Step 4.5: 성공 기준 체크리스트 검증**
 
 **체크리스트:**
-- [x] 카드가 부드럽게 페이드 인되어 나타남
-- [x] X 버튼 클릭 시 부드럽게 사라지고 `onDismiss` 콜백 호출
-- [x] 버튼이 세로로 배치되어 터치 영역이 넉넉함
-- [x] 배경이 흰색이고 border radius가 24
-- [x] `AppComponentThemes` 상수와 일관성 유지
-- [x] 기존 사용처에서 정상 동작
-- [x] 린터 에러 없음
+- [ ] 카드가 부드럽게 페이드 인되어 나타남
+- [ ] X 버튼 클릭 시 부드럽게 사라지고 `onDismiss` 콜백 호출
+- [ ] 버튼이 세로로 배치되어 터치 영역이 넉넉함
+- [ ] 배경이 흰색이고 border radius가 24
+- [ ] `AppComponentThemes` 상수와 일관성 유지
+- [ ] 기존 사용처에서 정상 동작
+- [ ] 린터 에러 없음
 
 - [ ] **Step 4.6: 최종 커밋 (검증 완료 표시)**
 
