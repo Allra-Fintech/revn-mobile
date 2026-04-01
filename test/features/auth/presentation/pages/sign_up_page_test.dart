@@ -12,6 +12,7 @@ import 'package:revn/features/auth/application/usecases/sign_up_usecase.dart';
 import 'package:revn/features/auth/application/usecases/verify_business_number_usecase.dart';
 import 'package:revn/features/auth/domain/entities/current_user.dart';
 import 'package:revn/features/auth/domain/failures/auth_failure.dart';
+import 'package:revn/features/auth/presentation/models/agreement_document.dart';
 import 'package:revn/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:revn/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
@@ -22,6 +23,20 @@ class MockVerifyBusinessNumberUseCase extends Mock
     implements VerifyBusinessNumberUseCase {}
 
 class MockSignUpUseCase extends Mock implements SignUpUseCase {}
+
+class _AgreementDetailsTestPage extends StatelessWidget {
+  const _AgreementDetailsTestPage({required this.document});
+
+  final AgreementDocument document;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(document.title)),
+      body: Text(document.url),
+    );
+  }
+}
 
 void main() {
   late MockVerifyBusinessNumberUseCase verifyBusinessNumberUseCase;
@@ -56,15 +71,24 @@ void main() {
       initialLocation: AuthRoute.signUp.path,
       routes: [
         GoRoute(
+          name: AuthRoute.signUp.name,
           path: AuthRoute.signUp.path,
           builder: (context, state) => const SignUpPage(),
         ),
         GoRoute(
+          name: AuthRoute.signIn.name,
           path: AuthRoute.signIn.path,
           builder: (context, state) => SignInPage(
             initialBusinessNumber: state
                 .uri
                 .queryParameters[AuthRoutes.signInBusinessNumberQueryParameter],
+          ),
+        ),
+        GoRoute(
+          name: AuthRoute.agreement.name,
+          path: AuthRoute.agreement.path,
+          builder: (context, state) => _AgreementDetailsTestPage(
+            document: state.extra! as AgreementDocument,
           ),
         ),
       ],
@@ -119,6 +143,77 @@ void main() {
     final checkboxes = tester.widgetList<Checkbox>(find.byType(Checkbox));
 
     expect(checkboxes.every((checkbox) => checkbox.value ?? false), true);
+  });
+
+  testWidgets('필수 약관 3개에만 상세 보기 아이콘이 노출된다', (tester) async {
+    await pumpPage(tester);
+
+    expect(find.byIcon(Icons.chevron_right_rounded), findsNWidgets(3));
+    expect(find.byTooltip('서비스 이용약관 보기'), findsOneWidget);
+    expect(find.byTooltip('개인정보 수집 및 이용동의 보기'), findsOneWidget);
+    expect(find.byTooltip('개인정보 제공 및 위탁동의 보기'), findsOneWidget);
+    expect(find.byTooltip('전체 동의 보기'), findsNothing);
+    expect(find.byTooltip('마케팅 활용 및 광고성 정보 수신 동의 보기'), findsNothing);
+  });
+
+  testWidgets('상세 보기 아이콘 탭 시 체크 상태는 유지되고 상세 페이지가 열린다', (tester) async {
+    await tester.pumpWidget(buildRouterTestApp());
+    await tester.pump();
+
+    final checkboxesBeforeTap = tester
+        .widgetList<Checkbox>(find.byType(Checkbox))
+        .toList();
+
+    expect(checkboxesBeforeTap[1].value, false);
+
+    await tester.tap(find.byTooltip('서비스 이용약관 보기'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('서비스 이용약관'), findsOneWidget);
+    expect(find.text('https://docs.revn.co.kr/terms'), findsOneWidget);
+    expect(find.byType(SignUpPage), findsNothing);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SignUpPage), findsOneWidget);
+    expect(
+      tester.widgetList<Checkbox>(find.byType(Checkbox)).toList()[1].value,
+      false,
+    );
+  });
+
+  testWidgets('약관 행 탭은 기존처럼 동의 체크만 토글한다', (tester) async {
+    await pumpPage(tester);
+
+    await tester.tap(find.textContaining('서비스 이용약관'));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widgetList<Checkbox>(find.byType(Checkbox)).toList()[1].value,
+      true,
+    );
+    expect(find.text('https://docs.revn.co.kr/terms'), findsNothing);
+  });
+
+  testWidgets('각 상세 보기 아이콘은 올바른 문서로 연결된다', (tester) async {
+    await tester.pumpWidget(buildRouterTestApp());
+    await tester.pump();
+
+    await tester.tap(find.byTooltip('개인정보 수집 및 이용동의 보기'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('개인정보 수집 및 이용동의'), findsOneWidget);
+    expect(find.text('https://docs.revn.co.kr/privacy'), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('개인정보 제공 및 위탁동의 보기'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('개인정보 제공 및 위탁동의'), findsOneWidget);
+    expect(find.text('https://docs.revn.co.kr/third-party'), findsOneWidget);
   });
 
   testWidgets('필수 약관만 동의해도 다음 단계로 이동할 수 있다', (tester) async {
@@ -252,9 +347,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AlertDialog), findsOneWidget);
-    expect(find.text('이미 가입된 사업자번호입니다. 로그인 화면으로 이동할게요.'), findsOneWidget);
+    expect(
+      find.text('입력하신 사업자번호는 이미 등록되어 있습니다.\n로그인 화면으로 이동하시겠습니까?'),
+      findsOneWidget,
+    );
 
-    await tester.tap(find.widgetWithText(TextButton, '로그인하기'));
+    await tester.tap(find.widgetWithText(FilledButton, '이동'));
     await tester.pumpAndSettle();
 
     expect(find.byType(SignInPage), findsOneWidget);

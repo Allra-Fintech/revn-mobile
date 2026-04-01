@@ -8,7 +8,9 @@ String? resolveAppRedirect({
 }) {
   final isSplash = location == AuthRoute.splash.path;
   final isAuthPage =
-      location == AuthRoute.signIn.path || location == AuthRoute.signUp.path;
+      location == AuthRoute.signIn.path ||
+      location == AuthRoute.signUp.path ||
+      location == AuthRoute.agreement.path;
   final isHome = location == HomeRoute.home.path;
 
   return authState.when(

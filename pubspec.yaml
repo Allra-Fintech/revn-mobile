@@ -48,6 +48,7 @@ dependencies:
   talker_flutter: ^5.1.16
   talker_dio_logger: ^5.1.16
   talker_riverpod_logger: ^5.1.16
+  webview_flutter: ^4.13.0
 
 dev_dependencies:
   flutter_test:

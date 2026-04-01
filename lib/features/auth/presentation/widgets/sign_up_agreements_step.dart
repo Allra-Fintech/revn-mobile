@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../models/agreement_document.dart';
 import '../providers/sign_up_flow_provider.dart';
+import '../routes/auth_routes.dart';
 
 class SignUpAgreementsStep extends ConsumerWidget {
   const SignUpAgreementsStep({super.key});
@@ -37,18 +40,30 @@ class SignUpAgreementsStep extends ConsumerWidget {
                   value: flow.serviceTermsAgreed,
                   isRequired: true,
                   onChanged: notifier.updateServiceTermsAgreement,
+                  onDetailsPressed: () => context.pushNamed(
+                    AuthRoute.agreement.name,
+                    extra: AgreementDocument.serviceTerms,
+                  ),
                 ),
                 _AgreementCheckboxTile(
                   title: '개인정보 수집 및 이용동의',
                   value: flow.privacyCollectionAgreed,
                   isRequired: true,
                   onChanged: notifier.updatePrivacyCollectionAgreement,
+                  onDetailsPressed: () => context.pushNamed(
+                    AuthRoute.agreement.name,
+                    extra: AgreementDocument.privacyCollection,
+                  ),
                 ),
                 _AgreementCheckboxTile(
                   title: '개인정보 제공 및 위탁동의',
                   value: flow.privacySharingAgreed,
                   isRequired: true,
                   onChanged: notifier.updatePrivacySharingAgreement,
+                  onDetailsPressed: () => context.pushNamed(
+                    AuthRoute.agreement.name,
+                    extra: AgreementDocument.privacySharing,
+                  ),
                 ),
                 _AgreementCheckboxTile(
                   title: '마케팅 활용 및 광고성 정보 수신 동의',
@@ -84,6 +99,7 @@ class _AgreementCheckboxTile extends StatelessWidget {
     required this.value,
     required this.isRequired,
     required this.onChanged,
+    this.onDetailsPressed,
     this.titleStyle,
   });
 
@@ -91,6 +107,7 @@ class _AgreementCheckboxTile extends StatelessWidget {
   final bool value;
   final bool isRequired;
   final ValueChanged<bool> onChanged;
+  final VoidCallback? onDetailsPressed;
   final TextStyle? titleStyle;
 
   @override
@@ -133,6 +150,13 @@ class _AgreementCheckboxTile extends StatelessWidget {
                 ),
               ),
             ),
+            if (onDetailsPressed != null)
+              IconButton(
+                onPressed: onDetailsPressed,
+                icon: const Icon(Icons.chevron_right_rounded),
+                splashRadius: 20,
+                tooltip: '$title 보기',
+              ),
           ],
         ),
       ),
