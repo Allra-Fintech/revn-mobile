@@ -26,8 +26,13 @@ class MockAuthRemoteDataSource implements AuthRemoteDataSource {
 
     switch (normalizedBusinessNumber) {
       case AuthMockFixtures.successBusinessNumber:
-      case AuthMockFixtures.duplicateRegistrationBusinessNumber:
         return;
+      case AuthMockFixtures.duplicateRegistrationBusinessNumber:
+        throw _httpError(
+          path: '/auth/business-number/verify',
+          statusCode: 409,
+          message: '이미 가입된 사업자번호입니다.',
+        );
       case AuthMockFixtures.validationErrorBusinessNumber:
         throw _httpError(
           path: '/auth/business-number/verify',

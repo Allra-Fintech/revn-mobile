@@ -17,10 +17,19 @@ void main() {
   });
 
   test(
-    'verifyBusinessNumber duplicate registration scenario still verifies',
+    'verifyBusinessNumber duplicate registration scenario throws 409 dio exception',
     () async {
-      await dataSource.verifyBusinessNumber(
-        businessNumber: AuthMockFixtures.duplicateRegistrationBusinessNumber,
+      await expectLater(
+        () => dataSource.verifyBusinessNumber(
+          businessNumber: AuthMockFixtures.duplicateRegistrationBusinessNumber,
+        ),
+        throwsA(
+          isA<DioException>().having(
+            (error) => error.response?.statusCode,
+            'statusCode',
+            409,
+          ),
+        ),
       );
     },
   );

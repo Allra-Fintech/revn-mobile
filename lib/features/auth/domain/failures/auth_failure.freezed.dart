@@ -55,12 +55,13 @@ extension AuthFailurePatterns on AuthFailure {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( InvalidCredentials value)?  invalidCredentials,TResult Function( Unauthorized value)?  unauthorized,TResult Function( CommonAuthFailure value)?  common,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( InvalidCredentials value)?  invalidCredentials,TResult Function( Unauthorized value)?  unauthorized,TResult Function( DuplicateBusinessNumber value)?  duplicateBusinessNumber,TResult Function( CommonAuthFailure value)?  common,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case InvalidCredentials() when invalidCredentials != null:
 return invalidCredentials(_that);case Unauthorized() when unauthorized != null:
-return unauthorized(_that);case CommonAuthFailure() when common != null:
+return unauthorized(_that);case DuplicateBusinessNumber() when duplicateBusinessNumber != null:
+return duplicateBusinessNumber(_that);case CommonAuthFailure() when common != null:
 return common(_that);case _:
   return orElse();
 
@@ -79,12 +80,13 @@ return common(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( InvalidCredentials value)  invalidCredentials,required TResult Function( Unauthorized value)  unauthorized,required TResult Function( CommonAuthFailure value)  common,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( InvalidCredentials value)  invalidCredentials,required TResult Function( Unauthorized value)  unauthorized,required TResult Function( DuplicateBusinessNumber value)  duplicateBusinessNumber,required TResult Function( CommonAuthFailure value)  common,}){
 final _that = this;
 switch (_that) {
 case InvalidCredentials():
 return invalidCredentials(_that);case Unauthorized():
-return unauthorized(_that);case CommonAuthFailure():
+return unauthorized(_that);case DuplicateBusinessNumber():
+return duplicateBusinessNumber(_that);case CommonAuthFailure():
 return common(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
@@ -99,12 +101,13 @@ return common(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( InvalidCredentials value)?  invalidCredentials,TResult? Function( Unauthorized value)?  unauthorized,TResult? Function( CommonAuthFailure value)?  common,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( InvalidCredentials value)?  invalidCredentials,TResult? Function( Unauthorized value)?  unauthorized,TResult? Function( DuplicateBusinessNumber value)?  duplicateBusinessNumber,TResult? Function( CommonAuthFailure value)?  common,}){
 final _that = this;
 switch (_that) {
 case InvalidCredentials() when invalidCredentials != null:
 return invalidCredentials(_that);case Unauthorized() when unauthorized != null:
-return unauthorized(_that);case CommonAuthFailure() when common != null:
+return unauthorized(_that);case DuplicateBusinessNumber() when duplicateBusinessNumber != null:
+return duplicateBusinessNumber(_that);case CommonAuthFailure() when common != null:
 return common(_that);case _:
   return null;
 
@@ -122,11 +125,12 @@ return common(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  invalidCredentials,TResult Function()?  unauthorized,TResult Function( CommonFailure failure)?  common,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  invalidCredentials,TResult Function()?  unauthorized,TResult Function()?  duplicateBusinessNumber,TResult Function( CommonFailure failure)?  common,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case InvalidCredentials() when invalidCredentials != null:
 return invalidCredentials();case Unauthorized() when unauthorized != null:
-return unauthorized();case CommonAuthFailure() when common != null:
+return unauthorized();case DuplicateBusinessNumber() when duplicateBusinessNumber != null:
+return duplicateBusinessNumber();case CommonAuthFailure() when common != null:
 return common(_that.failure);case _:
   return orElse();
 
@@ -145,11 +149,12 @@ return common(_that.failure);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  invalidCredentials,required TResult Function()  unauthorized,required TResult Function( CommonFailure failure)  common,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  invalidCredentials,required TResult Function()  unauthorized,required TResult Function()  duplicateBusinessNumber,required TResult Function( CommonFailure failure)  common,}) {final _that = this;
 switch (_that) {
 case InvalidCredentials():
 return invalidCredentials();case Unauthorized():
-return unauthorized();case CommonAuthFailure():
+return unauthorized();case DuplicateBusinessNumber():
+return duplicateBusinessNumber();case CommonAuthFailure():
 return common(_that.failure);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -164,11 +169,12 @@ return common(_that.failure);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  invalidCredentials,TResult? Function()?  unauthorized,TResult? Function( CommonFailure failure)?  common,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  invalidCredentials,TResult? Function()?  unauthorized,TResult? Function()?  duplicateBusinessNumber,TResult? Function( CommonFailure failure)?  common,}) {final _that = this;
 switch (_that) {
 case InvalidCredentials() when invalidCredentials != null:
 return invalidCredentials();case Unauthorized() when unauthorized != null:
-return unauthorized();case CommonAuthFailure() when common != null:
+return unauthorized();case DuplicateBusinessNumber() when duplicateBusinessNumber != null:
+return duplicateBusinessNumber();case CommonAuthFailure() when common != null:
 return common(_that.failure);case _:
   return null;
 
@@ -233,6 +239,38 @@ int get hashCode => runtimeType.hashCode;
 @override
 String toString() {
   return 'AuthFailure.unauthorized()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class DuplicateBusinessNumber implements AuthFailure {
+  const DuplicateBusinessNumber();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DuplicateBusinessNumber);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'AuthFailure.duplicateBusinessNumber()';
 }
 
 

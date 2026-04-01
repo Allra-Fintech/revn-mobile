@@ -11,6 +11,8 @@ import '../dtos/sign_in_response_dto.dart';
 import '../mappers/auth_mapper.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
+  static const _duplicateBusinessNumberMessage = '이미 가입된 사업자번호입니다.';
+
   AuthRepositoryImpl({
     required AuthRemoteDataSource remoteDataSource,
     required AuthLocalDataSource localDataSource,
@@ -89,9 +91,17 @@ class AuthRepositoryImpl implements AuthRepository {
     if (error is DioException) {
       final statusCode = error.response?.statusCode;
       final path = error.requestOptions.path;
+      final message = _extractMessage(error);
 
       if (statusCode == 401) {
         return const AuthFailure.unauthorized();
+      }
+
+      if (_isDuplicateBusinessNumberVerificationError(
+        path: path,
+        message: message,
+      )) {
+        return const AuthFailure.duplicateBusinessNumber();
       }
 
       if (path == '/auth/sign-in' && (statusCode == 400 || statusCode == 403)) {
@@ -105,7 +115,7 @@ class AuthRepositoryImpl implements AuthRepository {
         return const AuthFailure.common(CommonFailure.network());
       }
 
-      return AuthFailure.common(CommonFailure.server(_extractMessage(error)));
+      return AuthFailure.common(CommonFailure.server(message));
     }
 
     if (error is FormatException) {
@@ -113,6 +123,14 @@ class AuthRepositoryImpl implements AuthRepository {
     }
 
     return AuthFailure.common(CommonFailure.unknown(error.toString()));
+  }
+
+  bool _isDuplicateBusinessNumberVerificationError({
+    required String path,
+    required String? message,
+  }) {
+    return path == '/auth/business-number/verify' &&
+        message == _duplicateBusinessNumberMessage;
   }
 
   Future<CurrentUser> _persistSession(SignInResponseDto response) async {

@@ -14,12 +14,17 @@ enum AuthRoute {
 }
 
 abstract final class AuthRoutes {
+  static const signInBusinessNumberQueryParameter = 'businessNumber';
+
   static List<RouteBase> buildAuthRoutes() {
     return [
       GoRoute(
         name: AuthRoute.signIn.name,
         path: AuthRoute.signIn.path,
-        builder: (context, state) => const SignInPage(),
+        builder: (context, state) => SignInPage(
+          initialBusinessNumber:
+              state.uri.queryParameters[signInBusinessNumberQueryParameter],
+        ),
       ),
       GoRoute(
         name: AuthRoute.splash.name,

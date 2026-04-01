@@ -8,5 +8,6 @@ part 'auth_failure.freezed.dart';
 sealed class AuthFailure with _$AuthFailure {
   const factory AuthFailure.invalidCredentials() = InvalidCredentials;
   const factory AuthFailure.unauthorized() = Unauthorized;
+  const factory AuthFailure.duplicateBusinessNumber() = DuplicateBusinessNumber;
   const factory AuthFailure.common(CommonFailure failure) = CommonAuthFailure;
 }

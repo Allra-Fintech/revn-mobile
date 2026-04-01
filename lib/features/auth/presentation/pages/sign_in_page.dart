@@ -5,7 +5,9 @@ import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
 import '../widgets/sign_in_form.dart';
 
 class SignInPage extends StatelessWidget {
-  const SignInPage({super.key});
+  const SignInPage({super.key, this.initialBusinessNumber});
+
+  final String? initialBusinessNumber;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,7 @@ class SignInPage extends StatelessWidget {
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 32),
-                  SignInForm(),
+                  SignInForm(initialBusinessNumber: initialBusinessNumber),
                   SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

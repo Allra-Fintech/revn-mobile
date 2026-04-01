@@ -15,7 +15,7 @@ sealed class SignInFormState with _$SignInFormState {
 }
 
 final signInFormProvider =
-    NotifierProvider<SignInFormNotifier, SignInFormState>(
+    NotifierProvider.autoDispose<SignInFormNotifier, SignInFormState>(
       SignInFormNotifier.new,
     );
 
@@ -23,6 +23,16 @@ class SignInFormNotifier extends Notifier<SignInFormState> {
   @override
   SignInFormState build() {
     return const SignInFormState();
+  }
+
+  void hydrate({String businessNumber = ''}) {
+    state = SignInFormState(
+      businessNumber: normalizeBusinessNumber(businessNumber),
+    );
+  }
+
+  void reset() {
+    state = const SignInFormState();
   }
 
   void updateBusinessNumber(String businessNumber) {

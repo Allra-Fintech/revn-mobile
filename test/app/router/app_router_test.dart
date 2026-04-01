@@ -44,8 +44,19 @@ void main() {
     return containerOf(tester).read(appRouterProvider);
   }
 
+  Uri uriOf(WidgetTester tester) {
+    return routerOf(tester).routeInformationProvider.value.uri;
+  }
+
   String locationOf(WidgetTester tester) {
-    return routerOf(tester).routeInformationProvider.value.uri.path;
+    return uriOf(tester).path;
+  }
+
+  String? businessNumberFieldValue(WidgetTester tester) {
+    return tester
+        .widget<TextFormField>(find.byType(TextFormField).first)
+        .controller
+        ?.text;
   }
 
   Future<void> pumpRouterApp(
@@ -119,6 +130,32 @@ void main() {
     expect(locationOf(tester), AuthRoute.signIn.path);
     expect(find.byType(SignInPage), findsOneWidget);
   });
+
+  testWidgets(
+    'unauthenticated state keeps sign-in query parameter and prefills business number',
+    (tester) async {
+      await pumpRouterApp(
+        tester,
+        TestAuthController(const AuthState.unauthenticated()),
+      );
+
+      routerOf(tester).go(
+        '${AuthRoute.signIn.path}?${AuthRoutes.signInBusinessNumberQueryParameter}=1234567890',
+      );
+      await tester.pump();
+      await tester.pump();
+
+      expect(locationOf(tester), AuthRoute.signIn.path);
+      expect(
+        uriOf(
+          tester,
+        ).queryParameters[AuthRoutes.signInBusinessNumberQueryParameter],
+        '1234567890',
+      );
+      expect(find.byType(SignInPage), findsOneWidget);
+      expect(businessNumberFieldValue(tester), '123-45-67890');
+    },
+  );
 
   testWidgets('router refreshes when auth state changes', (tester) async {
     final authController = TestAuthController(const AuthState.initial());

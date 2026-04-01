@@ -121,6 +121,36 @@ void main() {
             remoteDataSource.verifyBusinessNumber(businessNumber: '1234567890'),
       ).called(1);
     });
+
+    test('중복 사업자번호 인증 에러는 duplicate failure를 반환한다', () async {
+      when(
+        () => remoteDataSource.verifyBusinessNumber(
+          businessNumber: any(named: 'businessNumber'),
+        ),
+      ).thenThrow(
+        DioException.badResponse(
+          statusCode: 409,
+          requestOptions: RequestOptions(path: '/auth/business-number/verify'),
+          response: Response<Map<String, dynamic>>(
+            requestOptions: RequestOptions(
+              path: '/auth/business-number/verify',
+            ),
+            statusCode: 409,
+            data: const {'message': '이미 가입된 사업자번호입니다.'},
+          ),
+        ),
+      );
+
+      final result = await repository
+          .verifyBusinessNumber(businessNumber: '4090000000')
+          .run();
+
+      expect(result.isLeft(), true);
+
+      result.match((failure) {
+        expect(failure, const AuthFailure.duplicateBusinessNumber());
+      }, (_) => fail('Left expected'));
+    });
   });
 
   group('signUp', () {

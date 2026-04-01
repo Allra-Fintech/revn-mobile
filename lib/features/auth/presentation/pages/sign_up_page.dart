@@ -24,6 +24,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     return switch (failure) {
       InvalidCredentials() => '입력한 정보를 다시 확인해주세요.',
       Unauthorized() => '인증이 만료되었거나 유효하지 않습니다.',
+      DuplicateBusinessNumber() => '이미 가입된 사업자번호입니다.',
       CommonAuthFailure(:final failure) => switch (failure) {
         NetworkFailure() => '네트워크 연결을 확인해주세요.',
         StorageFailure() => '기기 저장소 접근에 실패했습니다.',
@@ -39,15 +40,50 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  void _showDuplicateBusinessNumberDialog(String businessNumber) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          content: const Text('이미 가입된 사업자번호입니다. 로그인 화면으로 이동할게요.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                context.go(
+                  Uri(
+                    path: AuthRoute.signIn.path,
+                    queryParameters: <String, String>{
+                      AuthRoutes.signInBusinessNumberQueryParameter:
+                          businessNumber,
+                    },
+                  ).toString(),
+                );
+              },
+              child: const Text('로그인하기'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _listenToSignUpState(
     SignUpControllerState? previous,
     SignUpControllerState next,
   ) {
     if (previous?.verification.isLoading == true &&
         next.verification.hasError) {
-      _showSnackBar(
-        _messageForFailure(next.verification.error! as AuthFailure),
-      );
+      final failure = next.verification.error! as AuthFailure;
+
+      if (failure is DuplicateBusinessNumber) {
+        _showDuplicateBusinessNumberDialog(
+          ref.read(signUpFlowProvider).businessNumber,
+        );
+      } else {
+        _showSnackBar(_messageForFailure(failure));
+      }
     }
 
     if (previous?.submission.isLoading == true && next.submission.hasError) {

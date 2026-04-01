@@ -1,9 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
-import 'dart:async';
 
 import 'package:revn/core/errors/common_failure.dart';
 import 'package:revn/features/auth/application/providers/auth_providers.dart';
@@ -18,37 +19,38 @@ class MockSignInUseCase extends Mock implements SignInUseCase {}
 void main() {
   late MockSignInUseCase signInUseCase;
 
-  FormFieldState<String> businessNumberFieldState(WidgetTester tester) =>
-      tester.state<FormFieldState<String>>(find.byType(TextFormField).at(0));
+  ProviderContainer containerOf(WidgetTester tester) {
+    return ProviderScope.containerOf(tester.element(find.byType(SignInForm)));
+  }
 
-  FormFieldState<String> passwordFieldState(WidgetTester tester) =>
-      tester.state<FormFieldState<String>>(find.byType(TextFormField).at(1));
+  String? textFieldValue(WidgetTester tester, int index) {
+    return tester
+        .widget<TextFormField>(find.byType(TextFormField).at(index))
+        .controller
+        ?.text;
+  }
 
-  void fillForm(
+  Future<void> fillForm(
     WidgetTester tester, {
     required String businessNumber,
     required String password,
-  }) {
-    final container = ProviderScope.containerOf(
-      tester.element(find.byType(SignInForm)),
-    );
-
-    businessNumberFieldState(tester).didChange(businessNumber);
-    passwordFieldState(tester).didChange(password);
-    container
-        .read(signInFormProvider.notifier)
-        .updateBusinessNumber(businessNumber);
-    container.read(signInFormProvider.notifier).updatePassword(password);
+  }) async {
+    await tester.enterText(find.byType(TextFormField).at(0), businessNumber);
+    await tester.enterText(find.byType(TextFormField).at(1), password);
   }
 
   setUp(() {
     signInUseCase = MockSignInUseCase();
   });
 
-  Widget buildTestApp() {
+  Widget buildTestApp({String? initialBusinessNumber}) {
     return ProviderScope(
       overrides: [signInUseCaseProvider.overrideWithValue(signInUseCase)],
-      child: const MaterialApp(home: Scaffold(body: SignInForm())),
+      child: MaterialApp(
+        home: Scaffold(
+          body: SignInForm(initialBusinessNumber: initialBusinessNumber),
+        ),
+      ),
     );
   }
 
@@ -65,6 +67,19 @@ void main() {
     expect(button.onPressed, isNotNull);
     expect(find.text('사업자번호 10자리를 입력해주세요.'), findsNothing);
     expect(find.text('비밀번호를 입력해주세요.'), findsNothing);
+  });
+
+  testWidgets('초기 사업자번호가 있으면 사업자번호만 채우고 비밀번호는 비운다', (tester) async {
+    await tester.pumpWidget(buildTestApp(initialBusinessNumber: '1234567890'));
+    await tester.pump();
+
+    expect(textFieldValue(tester, 0), '123-45-67890');
+    expect(textFieldValue(tester, 1), isEmpty);
+    expect(
+      containerOf(tester).read(signInFormProvider).businessNumber,
+      '1234567890',
+    );
+    expect(containerOf(tester).read(signInFormProvider).password, isEmpty);
   });
 
   testWidgets('로그인 폼을 Form으로 렌더링한다', (tester) async {
@@ -86,7 +101,7 @@ void main() {
   testWidgets('첫 submit 실패 이후 입력을 수정하면 에러가 즉시 갱신된다', (tester) async {
     await tester.pumpWidget(buildTestApp());
 
-    fillForm(tester, businessNumber: '123456789', password: '1234');
+    await fillForm(tester, businessNumber: '123456789', password: '1234');
     await tester.pump();
 
     expect(find.text('사업자번호 10자리를 입력해주세요.'), findsNothing);
@@ -95,7 +110,7 @@ void main() {
 
     expect(find.text('사업자번호 10자리를 입력해주세요.'), findsOneWidget);
 
-    fillForm(tester, businessNumber: '1234567890', password: '1234');
+    await fillForm(tester, businessNumber: '1234567890', password: '1234');
     await tester.pump();
 
     expect(find.text('사업자번호 10자리를 입력해주세요.'), findsNothing);
@@ -110,9 +125,7 @@ void main() {
         matching: find.byType(EditableText),
       ),
     );
-    final container = ProviderScope.containerOf(
-      tester.element(find.byType(SignInForm)),
-    );
+    final container = containerOf(tester);
 
     expect(passwordField().obscureText, isTrue);
 
@@ -133,7 +146,7 @@ void main() {
     ).thenReturn(TaskEither.right(user));
 
     await tester.pumpWidget(buildTestApp());
-    fillForm(tester, businessNumber: '123-45-67890', password: '1234');
+    await fillForm(tester, businessNumber: '123-45-67890', password: '1234');
     await tester.pump();
 
     await tester.tap(find.byType(FilledButton));
@@ -142,6 +155,43 @@ void main() {
     verify(
       () => signInUseCase(businessNumber: '1234567890', password: '1234'),
     ).called(1);
+  });
+
+  testWidgets('초기 사업자번호가 있으면 비밀번호만 입력해 정규화된 번호로 로그인 요청한다', (tester) async {
+    const user = CurrentUser(
+      id: '1',
+      businessNumber: '1234567890',
+      username: 'tester',
+    );
+    when(
+      () => signInUseCase(businessNumber: '1234567890', password: '1234'),
+    ).thenReturn(TaskEither.right(user));
+
+    await tester.pumpWidget(
+      buildTestApp(initialBusinessNumber: '123-45-67890'),
+    );
+    await tester.enterText(find.byType(TextFormField).at(1), '1234');
+    await tester.pump();
+
+    await tester.tap(find.byType(FilledButton));
+    await tester.pumpAndSettle();
+
+    verify(
+      () => signInUseCase(businessNumber: '1234567890', password: '1234'),
+    ).called(1);
+  });
+
+  testWidgets('초기 사업자번호가 있어도 비밀번호가 비어 있으면 비밀번호 validator를 보여준다', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildTestApp(initialBusinessNumber: '1234567890'));
+    await tester.pump();
+
+    await tapSubmitButton(tester);
+
+    expect(find.text('사업자번호 10자리를 입력해주세요.'), findsNothing);
+    expect(find.text('비밀번호를 입력해주세요.'), findsOneWidget);
+    verifyZeroInteractions(signInUseCase);
   });
 
   testWidgets('로그인 진행 중에는 버튼이 비활성화되고 로더가 보인다', (tester) async {
@@ -162,7 +212,7 @@ void main() {
     );
 
     await tester.pumpWidget(buildTestApp());
-    fillForm(tester, businessNumber: '123-45-67890', password: '1234');
+    await fillForm(tester, businessNumber: '123-45-67890', password: '1234');
     await tester.pump();
 
     await tester.tap(find.byType(FilledButton));
@@ -184,7 +234,7 @@ void main() {
     ).thenReturn(TaskEither.left(const AuthFailure.invalidCredentials()));
 
     await tester.pumpWidget(buildTestApp());
-    fillForm(tester, businessNumber: '123-45-67890', password: '1234');
+    await fillForm(tester, businessNumber: '123-45-67890', password: '1234');
     await tester.pump();
 
     await tester.tap(find.byType(FilledButton));
@@ -201,7 +251,7 @@ void main() {
     );
 
     await tester.pumpWidget(buildTestApp());
-    fillForm(tester, businessNumber: '123-45-67890', password: '1234');
+    await fillForm(tester, businessNumber: '123-45-67890', password: '1234');
     await tester.pump();
 
     await tester.tap(find.byType(FilledButton));

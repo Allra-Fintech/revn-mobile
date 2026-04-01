@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/widgets/revn_text_form_field.dart';
 import '../../../../core/errors/common_failure.dart';
+import '../../../../core/widgets/revn_text_form_field.dart';
 import '../../application/controllers/sign_in_controller.dart';
 import '../../domain/failures/auth_failure.dart';
 import '../providers/sign_in_form_provider.dart';
 import '../utils/business_number_text_input_formatter.dart';
 
 class SignInForm extends ConsumerStatefulWidget {
-  const SignInForm({super.key});
+  const SignInForm({super.key, this.initialBusinessNumber});
+
+  final String? initialBusinessNumber;
 
   @override
   ConsumerState<SignInForm> createState() => _SignInFormState();
@@ -17,7 +19,44 @@ class SignInForm extends ConsumerStatefulWidget {
 
 class _SignInFormState extends ConsumerState<SignInForm> {
   final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _businessNumberController;
+  late final TextEditingController _passwordController;
   bool _showValidationErrors = false;
+  bool _didHydrateInitialForm = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _businessNumberController = TextEditingController(
+      text: formatBusinessNumber(widget.initialBusinessNumber ?? ''),
+    );
+    _passwordController = TextEditingController();
+
+    _scheduleInitialHydration(widget.initialBusinessNumber);
+  }
+
+  @override
+  void didUpdateWidget(covariant SignInForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.initialBusinessNumber != widget.initialBusinessNumber) {
+      _didHydrateInitialForm = false;
+      _syncController(
+        _businessNumberController,
+        formatBusinessNumber(widget.initialBusinessNumber ?? ''),
+      );
+      _syncController(_passwordController, '');
+      _scheduleInitialHydration(widget.initialBusinessNumber);
+    }
+  }
+
+  @override
+  void dispose() {
+    _businessNumberController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   String? _validateBusinessNumber(String? value) {
     if (normalizeBusinessNumber(value ?? '').length == 10) {
@@ -51,10 +90,48 @@ class _SignInFormState extends ConsumerState<SignInForm> {
         .signIn(businessNumber: form.businessNumber, password: form.password);
   }
 
+  void _hydrateForm(String? businessNumber) {
+    ref
+        .read(signInFormProvider.notifier)
+        .hydrate(businessNumber: businessNumber ?? '');
+  }
+
+  void _scheduleInitialHydration(String? businessNumber) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
+      _hydrateForm(businessNumber);
+      setState(() {
+        _didHydrateInitialForm = true;
+      });
+    });
+  }
+
+  void _syncController(TextEditingController controller, String value) {
+    if (controller.text == value) {
+      return;
+    }
+
+    controller.value = TextEditingValue(
+      text: value,
+      selection: TextSelection.collapsed(offset: value.length),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final form = ref.watch(signInFormProvider);
     final signInState = ref.watch(signInControllerProvider);
+
+    if (_didHydrateInitialForm) {
+      _syncController(
+        _businessNumberController,
+        formatBusinessNumber(form.businessNumber),
+      );
+      _syncController(_passwordController, form.password);
+    }
 
     ref.listen(signInControllerProvider, (previous, next) {
       next.whenOrNull(
@@ -62,6 +139,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
           final message = switch (error) {
             InvalidCredentials() => '사업자번호 또는 비밀번호를 확인해주세요.',
             Unauthorized() => '인증이 만료되었거나 유효하지 않습니다.',
+            DuplicateBusinessNumber() => '이미 가입된 사업자번호입니다.',
             CommonAuthFailure(:final failure) => switch (failure) {
               NetworkFailure() => '네트워크 연결을 확인해주세요.',
               StorageFailure() => '기기 저장소 접근에 실패했습니다.',
@@ -92,6 +170,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               RevnTextFormField(
+                controller: _businessNumberController,
                 autovalidateMode: autovalidateMode,
                 keyboardType: TextInputType.number,
                 enabled: !isLoading,
@@ -106,6 +185,7 @@ class _SignInFormState extends ConsumerState<SignInForm> {
               ),
               const SizedBox(height: 16),
               RevnTextFormField(
+                controller: _passwordController,
                 autovalidateMode: autovalidateMode,
                 obscureText: form.obscurePassword,
                 enabled: !isLoading,
