@@ -4,6 +4,7 @@ import 'app_colors.dart';
 import 'app_component_themes.dart';
 
 abstract final class RevnTheme {
+  static const String _fontFamily = 'Pretendard';
   static final ThemeData light = _buildLightTheme();
 
   static ThemeData _buildLightTheme() {
@@ -12,26 +13,33 @@ abstract final class RevnTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.scaffoldBackground,
+      fontFamily: _fontFamily,
+    );
+    final textTheme = baseTheme.textTheme.apply(fontFamily: _fontFamily);
+    final primaryTextTheme = baseTheme.primaryTextTheme.apply(
+      fontFamily: _fontFamily,
     );
 
     return baseTheme.copyWith(
+      textTheme: textTheme,
+      primaryTextTheme: primaryTextTheme,
       appBarTheme: AppComponentThemes.appBarTheme(colorScheme),
       cardTheme: AppComponentThemes.cardTheme(colorScheme),
       inputDecorationTheme: AppComponentThemes.inputDecorationTheme(
         colorScheme,
-        baseTheme.textTheme,
+        textTheme,
       ),
       filledButtonTheme: AppComponentThemes.filledButtonTheme(
         colorScheme,
-        baseTheme.textTheme,
+        textTheme,
       ),
       outlinedButtonTheme: AppComponentThemes.outlinedButtonTheme(
         colorScheme,
-        baseTheme.textTheme,
+        textTheme,
       ),
       textButtonTheme: AppComponentThemes.textButtonTheme(
         colorScheme,
-        baseTheme.textTheme,
+        textTheme,
       ),
     );
   }
