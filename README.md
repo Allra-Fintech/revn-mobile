@@ -138,6 +138,7 @@ Mock 인증 시나리오와 DTO 예시는 [docs/api-contracts/auth.md](/Users/al
 - **riverpod_generator** — `@riverpod` 등 Riverpod 관련 코드
 - **freezed** — 불변 모델·유니온 등
 - **json_serializable** — `json_serializable` 어노테이션 기반 직렬화
+- **widgetbook_generator** — Widgetbook use case 디렉터리 생성
 
 ### 한 번 생성
 
@@ -160,6 +161,39 @@ dart run build_runner watch --delete-conflicting-outputs
 ```
 
 어노테이션이나 수동으로 편집한 `*.g.dart` / `*.freezed.dart` 등 생성물은 Git에 커밋하는지 팀 규칙에 맞추면 됩니다. 모델·프로바이더 시그니처를 바꾼 뒤에는 위 명령으로 생성 코드를 다시 맞추세요.
+
+## Widgetbook
+
+로컬 전용 Widgetbook 파일럿은 최상위 `widgetbook/` 디렉터리에 있습니다. 운영 엔트리포인트, 운영 라우터, 운영 부트스트랩에는 Widgetbook 전용 분기나 route를 추가하지 않습니다.
+
+### 생성
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+위 명령은 `widgetbook/widgetbook.directories.g.dart`까지 함께 생성합니다.
+
+### 실행
+
+```bash
+flutter run -t widgetbook/main.dart
+```
+
+Widgetbook preview shell은 `RevnTheme.light`, dev/mock `AppConfig`, preview용 `Talker`, preview 라우터를 직접 주입하므로 flavor나 `--dart-define` 없이 실행할 수 있습니다.
+
+### 파일 구성
+
+- 엔트리포인트: `widgetbook/main.dart`
+- 루트 앱 정의: `widgetbook/widgetbook.dart`
+- preview state / override: `widgetbook/src/preview/`
+- auth use case: `widgetbook/use_cases/auth/`
+
+### use case 추가 규칙
+
+- 새 페이지가 생기면 해당 페이지의 Widgetbook use case도 같이 추가합니다.
+- 같은 페이지에서 큰 상태 변화가 생기면 기존 use case를 갱신하거나 새 use case를 추가합니다.
+- Widgetbook preview state는 `widgetbook/src/preview/` 아래 dev-only override로 유지하고, `test/` helper를 재사용하지 않습니다.
 
 ## 테스트
 
