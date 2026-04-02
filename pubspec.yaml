@@ -48,6 +48,7 @@ dependencies:
   talker_flutter: ^5.1.16
   talker_dio_logger: ^5.1.16
   talker_riverpod_logger: ^5.1.16
+  webview_flutter: ^4.13.0
 
 dev_dependencies:
   flutter_test:
@@ -76,6 +77,28 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  fonts:
+    - family: Pretendard
+      fonts:
+        - asset: assets/fonts/pretendard/Pretendard-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/pretendard/Pretendard-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/pretendard/Pretendard-Light.ttf
+          weight: 300
+        - asset: assets/fonts/pretendard/Pretendard-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/pretendard/Pretendard-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/pretendard/Pretendard-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/pretendard/Pretendard-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/pretendard/Pretendard-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/pretendard/Pretendard-Black.ttf
+          weight: 900
 
   # To add assets to your application, add an assets section, like this:
   # assets:

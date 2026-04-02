@@ -1,37 +1,44 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:revn/app/router/debug_routes.dart';
+import 'package:revn/app/router/redirects.dart';
+import 'package:revn/app/router/router_refresh_notifier.dart';
+import 'package:revn/features/auth/application/controllers/auth_controller.dart';
+import 'package:revn/features/auth/application/states/auth_state.dart';
+import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
+import 'package:revn/features/home/presentation/routes/home_routes.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
-import '../../features/home/presentation/pages/home_page.dart';
 import '../providers/app_providers.dart';
 
-enum AppRoute {
-  home('/'),
-  logs('/logs');
+final routerRefreshNotifierProvider = Provider<RouterRefreshNotifier>((ref) {
+  final notifier = RouterRefreshNotifier();
 
-  const AppRoute(this.path);
+  ref.listen<AuthState>(authControllerProvider, (_, _) => notifier.refresh());
 
-  final String path;
-}
+  return notifier;
+});
 
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final refreshNotifier = ref.watch(routerRefreshNotifierProvider);
   final talker = ref.watch(talkerProvider);
   final router = GoRouter(
-    initialLocation: AppRoute.home.path,
+    initialLocation: AuthRoute.splash.path,
+    refreshListenable: refreshNotifier,
     observers: [TalkerRouteObserver(talker)],
     routes: [
-      GoRoute(
-        name: AppRoute.home.name,
-        path: AppRoute.home.path,
-        builder: (context, state) => const HomePage(),
-      ),
-      GoRoute(
-        name: AppRoute.logs.name,
-        path: AppRoute.logs.path,
-        builder: (context, state) =>
-            TalkerScreen(talker: talker, appBarTitle: 'Revn Logs'),
-      ),
+      ...HomeRoutes.buildHomeRoutes(),
+      ...DebugRoutes.buildDebugRoutes(talker),
+      ...AuthRoutes.buildAuthRoutes(),
     ],
+    redirect: (context, state) {
+      final authState = ref.read(authControllerProvider);
+
+      return resolveAppRedirect(
+        authState: authState,
+        location: state.matchedLocation,
+      );
+    },
   );
 
   ref.onDispose(router.dispose);

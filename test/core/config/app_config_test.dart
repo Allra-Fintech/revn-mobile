@@ -23,18 +23,43 @@ void main() {
     });
   });
 
+  group('AppApiMode.fromValue', () {
+    test('parses mock', () {
+      expect(AppApiMode.fromValue('mock'), AppApiMode.mock);
+    });
+
+    test('parses real', () {
+      expect(AppApiMode.fromValue('real'), AppApiMode.real);
+    });
+
+    test('throws for unsupported values', () {
+      expect(() => AppApiMode.fromValue('fake'), throwsArgumentError);
+    });
+  });
+
   group('AppConfig.fromValues', () {
     test('normalizes trailing slash', () {
       final config = AppConfig.fromValues(
         environment: 'dev',
         baseUrl: 'https://api.example.com/',
+        apiMode: 'real',
       );
 
       expect(config.environment, AppEnvironment.dev);
       expect(config.baseUrl, 'https://api.example.com');
+      expect(config.apiMode, AppApiMode.real);
     });
 
-    test('keeps base url without trailing slash', () {
+    test('defaults dev environment to mock mode', () {
+      final config = AppConfig.fromValues(environment: 'dev', baseUrl: '');
+
+      expect(config.environment, AppEnvironment.dev);
+      expect(config.baseUrl, '');
+      expect(config.apiMode, AppApiMode.mock);
+      expect(config.usesMockApi, isTrue);
+    });
+
+    test('defaults staging environment to real mode', () {
       final config = AppConfig.fromValues(
         environment: 'staging',
         baseUrl: 'https://staging-api.example.com',
@@ -42,11 +67,28 @@ void main() {
 
       expect(config.environment, AppEnvironment.staging);
       expect(config.baseUrl, 'https://staging-api.example.com');
+      expect(config.apiMode, AppApiMode.real);
     });
 
-    test('throws when base url is empty', () {
+    test('allows empty base url in mock mode', () {
+      final config = AppConfig.fromValues(
+        environment: 'prod',
+        baseUrl: '',
+        apiMode: 'mock',
+      );
+
+      expect(config.environment, AppEnvironment.prod);
+      expect(config.baseUrl, '');
+      expect(config.apiMode, AppApiMode.mock);
+    });
+
+    test('throws when real mode base url is empty', () {
       expect(
-        () => AppConfig.fromValues(environment: 'prod', baseUrl: ''),
+        () => AppConfig.fromValues(
+          environment: 'prod',
+          baseUrl: '',
+          apiMode: 'real',
+        ),
         throwsArgumentError,
       );
     });

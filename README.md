@@ -44,6 +44,7 @@
 
 - `environment: AppEnvironment`
 - `baseUrl: String`
+- `apiMode: AppApiMode`
 
 `APP_ENV` 허용 값:
 
@@ -51,25 +52,43 @@
 - `staging`
 - `prod`
 
-`APP_BASE_URL`은 필수입니다. 없으면 부트스트랩 단계에서 바로 실패합니다.
+`APP_API_MODE` 허용 값:
+
+- `mock`
+- `real`
+
+기본값:
+
+- `APP_ENV=dev`면 `APP_API_MODE=mock`
+- `APP_ENV=staging|prod`면 `APP_API_MODE=real`
+
+`APP_BASE_URL`은 `real` 모드에서만 필수입니다. `mock` 모드에서는 비워둘 수 있습니다.
 
 ## 실행 명령
 
 ```bash
 flutter run --flavor dev \
+  --dart-define=APP_ENV=dev
+```
+
+```bash
+flutter run --flavor dev \
   --dart-define=APP_ENV=dev \
+  --dart-define=APP_API_MODE=real \
   --dart-define=APP_BASE_URL=https://dev-api.example.com
 ```
 
 ```bash
 flutter run --flavor staging \
   --dart-define=APP_ENV=staging \
+  --dart-define=APP_API_MODE=real \
   --dart-define=APP_BASE_URL=https://staging-api.example.com
 ```
 
 ```bash
 flutter run --flavor prod \
   --dart-define=APP_ENV=prod \
+  --dart-define=APP_API_MODE=real \
   --dart-define=APP_BASE_URL=https://api.example.com
 ```
 
@@ -108,7 +127,9 @@ const rawExample = String.fromEnvironment(
 - `dart-define` 값이 숨겨진다고 가정하지 마세요. 검사 가능한 값으로 취급하세요.
 - `APP_ENV`와 `--flavor`를 맞추세요.
   - 예: `--flavor staging`이면 `APP_ENV=staging`과 짝을 맞춥니다.
-- 필수 설정이 없을 때 조용히 샘플 값을 쓰기보다, 빠르게 실패하는 편을 권장합니다.
+- `real` 모드에서 필수 설정이 없을 때 조용히 샘플 값을 쓰기보다, 빠르게 실패하는 편을 권장합니다.
+
+Mock 인증 시나리오와 DTO 예시는 [docs/api-contracts/auth.md](/Users/allra_sangmin/Documents/github/revn-mobile/docs/api-contracts/auth.md)에 정리되어 있습니다.
 
 ## Build Runner (코드 생성)
 

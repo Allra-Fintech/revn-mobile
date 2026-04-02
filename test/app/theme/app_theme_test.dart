@@ -19,6 +19,10 @@ void main() {
 
       final cardTheme = theme.cardTheme;
       final shape = cardTheme.shape as RoundedRectangleBorder;
+      final inputTheme = theme.inputDecorationTheme;
+      final enabledBorder = inputTheme.enabledBorder as OutlineInputBorder;
+      final focusedBorder = inputTheme.focusedBorder as OutlineInputBorder;
+      final errorBorder = inputTheme.errorBorder as OutlineInputBorder;
 
       expect(cardTheme.color, AppColors.cardBackground);
       expect(cardTheme.elevation, 0);
@@ -27,6 +31,24 @@ void main() {
         BorderRadius.circular(AppComponentThemes.cardBorderRadius),
       );
       expect(shape.side.color, colorScheme.outlineVariant);
+
+      expect(inputTheme.filled, isFalse);
+      expect(inputTheme.constraints, AppComponentThemes.inputConstraints);
+      expect(inputTheme.contentPadding, AppComponentThemes.inputContentPadding);
+      expect(
+        enabledBorder.borderRadius,
+        BorderRadius.circular(AppComponentThemes.inputBorderRadius),
+      );
+      expect(enabledBorder.borderSide.color, colorScheme.outlineVariant);
+      expect(enabledBorder.borderSide.width, 1);
+      expect(focusedBorder.borderSide.color, colorScheme.primary);
+      expect(focusedBorder.borderSide.width, 1.5);
+      expect(errorBorder.borderSide.color, colorScheme.error);
+      expect(errorBorder.borderSide.width, 1.5);
+      expect(
+        inputTheme.suffixIconConstraints,
+        AppComponentThemes.inputIconConstraints,
+      );
     });
   });
 }
