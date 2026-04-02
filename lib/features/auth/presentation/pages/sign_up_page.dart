@@ -1,10 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:revn/features/auth/application/controllers/social_auth_controller.dart';
 import 'package:revn/features/auth/application/controllers/sign_up_controller.dart';
 import 'package:revn/features/auth/application/states/sign_up_controller_state.dart';
-import 'package:revn/features/auth/domain/entities/pending_social_link.dart';
+import 'package:revn/features/auth/domain/entities/current_user.dart';
 import 'package:revn/features/auth/domain/failures/auth_failure.dart';
 import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
 
@@ -12,7 +14,6 @@ import '../providers/sign_up_flow_provider.dart';
 import '../utils/auth_failure_message.dart';
 import '../widgets/sign_up_agreements_step.dart';
 import '../widgets/sign_up_credentials_step.dart';
-import '../widgets/social_link_notice_card.dart';
 import '../widgets/sign_up_welcome_step.dart';
 
 class SignUpPage extends ConsumerStatefulWidget {
@@ -88,19 +89,76 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
 
     final signedUpUser = next.signedUpUser;
     if (signedUpUser != null && previous?.signedUpUser != signedUpUser) {
-      ref.read(signUpFlowProvider.notifier).setStep(SignUpStep.welcome);
+      unawaited(_handleSignedUpUser(signedUpUser));
     }
+  }
+
+  Future<bool?> _showSocialLinkDialog() {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('카카오 계정 연동'),
+          content: const Text(
+            '최근 로그인한 카카오 게정을 가입과 연동할 수 있습니다. 다음 로그인시 카카오로 간편하게 로그인할 수 있어요.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('나중에'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('연동'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _handleSignedUpUser(CurrentUser user) async {
+    final pendingLink = ref.read(socialAuthControllerProvider).pendingLink;
+    if (pendingLink == null) {
+      ref.read(signUpFlowProvider.notifier).setStep(SignUpStep.welcome);
+      return;
+    }
+
+    final shouldLinkNow = await _showSocialLinkDialog();
+    if (!mounted) {
+      return;
+    }
+
+    if (shouldLinkNow != true) {
+      ref.read(signUpFlowProvider.notifier).setStep(SignUpStep.welcome);
+      return;
+    }
+
+    final linked = await ref
+        .read(socialAuthControllerProvider.notifier)
+        .completePendingLink(user);
+    if (!mounted) {
+      return;
+    }
+
+    if (!linked) {
+      final latestPendingLink = ref
+          .read(socialAuthControllerProvider)
+          .pendingLink;
+      _showSnackBar(
+        latestPendingLink?.lastErrorMessage ??
+            '${pendingLink.provider.displayName} 계정 연동에 실패했습니다.',
+      );
+    }
+
+    ref.read(signUpFlowProvider.notifier).setStep(SignUpStep.welcome);
   }
 
   @override
   Widget build(BuildContext context) {
     final flow = ref.watch(signUpFlowProvider);
-    final socialAuthState = ref.watch(socialAuthControllerProvider);
-    final signUpState = ref.watch(signUpControllerProvider);
-    final pendingLink = socialAuthState.pendingLink;
-    final shouldShowRetryActions =
-        pendingLink?.linkStatus == SocialLinkStatus.failed &&
-        signUpState.signedUpUser != null;
+    ref.watch(signUpControllerProvider);
 
     ref.listen(signUpControllerProvider, _listenToSignUpState);
 
@@ -120,29 +178,6 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (pendingLink != null) ...[
-                    SocialLinkNoticeCard(
-                      title: shouldShowRetryActions
-                          ? '${pendingLink.provider.displayName} 연동을 완료하지 못했습니다'
-                          : '${pendingLink.provider.displayName} 계정을 연결하는 중입니다',
-                      description: shouldShowRetryActions
-                          ? pendingLink.lastErrorMessage ??
-                                '${pendingLink.provider.displayName} 계정 연동에 실패했습니다.'
-                          : '${pendingLink.provider.displayName} 로그인 후 회원가입이 완료되면 계정이 자동으로 연동됩니다.',
-                      primaryActionLabel: shouldShowRetryActions
-                          ? '다시 시도'
-                          : null,
-                      onPrimaryAction: shouldShowRetryActions
-                          ? ref
-                                .read(signUpControllerProvider.notifier)
-                                .retryPendingSocialLink
-                          : null,
-                      onDismiss: ref
-                          .read(socialAuthControllerProvider.notifier)
-                          .clearPendingLink,
-                    ),
-                    const SizedBox(height: 24),
-                  ],
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 220),
                     switchInCurve: Curves.easeOut,

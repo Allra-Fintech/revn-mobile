@@ -5,24 +5,35 @@ import 'package:fpdart/fpdart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:revn/core/errors/common_failure.dart';
 import 'package:revn/features/auth/application/controllers/auth_controller.dart';
+import 'package:revn/features/auth/application/controllers/social_auth_controller.dart';
 import 'package:revn/features/auth/application/providers/auth_providers.dart';
 import 'package:revn/features/auth/application/states/auth_state.dart';
+import 'package:revn/features/auth/application/states/social_auth_state.dart';
+import 'package:revn/features/auth/application/usecases/link_social_account_usecase.dart';
 import 'package:revn/features/auth/application/usecases/sign_up_usecase.dart';
 import 'package:revn/features/auth/application/usecases/verify_business_number_usecase.dart';
 import 'package:revn/features/auth/domain/entities/current_user.dart';
+import 'package:revn/features/auth/domain/entities/pending_social_link.dart';
+import 'package:revn/features/auth/domain/entities/social_provider.dart';
 import 'package:revn/features/auth/domain/failures/auth_failure.dart';
 import 'package:revn/features/auth/presentation/models/agreement_document.dart';
 import 'package:revn/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:revn/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
+import 'package:revn/features/auth/presentation/widgets/social_link_notice_card.dart';
 
 import '../../helpers/test_auth_controller.dart';
+import '../../helpers/test_social_auth_controller.dart';
 
 class MockVerifyBusinessNumberUseCase extends Mock
     implements VerifyBusinessNumberUseCase {}
 
 class MockSignUpUseCase extends Mock implements SignUpUseCase {}
+
+class MockLinkSocialAccountUseCase extends Mock
+    implements LinkSocialAccountUseCase {}
 
 class _AgreementDetailsTestPage extends StatelessWidget {
   const _AgreementDetailsTestPage({required this.document});
@@ -41,11 +52,13 @@ class _AgreementDetailsTestPage extends StatelessWidget {
 void main() {
   late MockVerifyBusinessNumberUseCase verifyBusinessNumberUseCase;
   late MockSignUpUseCase signUpUseCase;
+  late MockLinkSocialAccountUseCase linkSocialAccountUseCase;
   late TestAuthController authController;
 
   setUp(() {
     verifyBusinessNumberUseCase = MockVerifyBusinessNumberUseCase();
     signUpUseCase = MockSignUpUseCase();
+    linkSocialAccountUseCase = MockLinkSocialAccountUseCase();
     authController = TestAuthController(const AuthState.unauthenticated());
   });
 
@@ -53,20 +66,30 @@ void main() {
     return ProviderScope.containerOf(tester.element(find.byType(SignUpPage)));
   }
 
-  Widget buildTestApp() {
+  Widget buildTestApp({
+    SocialAuthState initialSocialAuthState = const SocialAuthState(),
+  }) {
     return ProviderScope(
       overrides: [
         verifyBusinessNumberUseCaseProvider.overrideWithValue(
           verifyBusinessNumberUseCase,
         ),
         signUpUseCaseProvider.overrideWithValue(signUpUseCase),
+        linkSocialAccountUseCaseProvider.overrideWithValue(
+          linkSocialAccountUseCase,
+        ),
         authControllerProvider.overrideWith(() => authController),
+        socialAuthControllerProvider.overrideWith(
+          () => TestSocialAuthController(initialSocialAuthState),
+        ),
       ],
       child: const MaterialApp(home: SignUpPage()),
     );
   }
 
-  Widget buildRouterTestApp() {
+  Widget buildRouterTestApp({
+    SocialAuthState initialSocialAuthState = const SocialAuthState(),
+  }) {
     final router = GoRouter(
       initialLocation: AuthRoute.signUp.path,
       routes: [
@@ -100,7 +123,13 @@ void main() {
           verifyBusinessNumberUseCase,
         ),
         signUpUseCaseProvider.overrideWithValue(signUpUseCase),
+        linkSocialAccountUseCaseProvider.overrideWithValue(
+          linkSocialAccountUseCase,
+        ),
         authControllerProvider.overrideWith(() => authController),
+        socialAuthControllerProvider.overrideWith(
+          () => TestSocialAuthController(initialSocialAuthState),
+        ),
       ],
       child: MaterialApp.router(routerConfig: router),
     );
@@ -109,6 +138,18 @@ void main() {
   Future<void> pumpPage(WidgetTester tester) async {
     await tester.pumpWidget(buildTestApp());
     await tester.pump();
+  }
+
+  PendingSocialLink kakaoPendingLink({
+    SocialLinkStatus linkStatus = SocialLinkStatus.pending,
+    String? lastErrorMessage,
+  }) {
+    return PendingSocialLink(
+      provider: SocialProvider.kakao,
+      accessToken: 'pending-kakao-token',
+      linkStatus: linkStatus,
+      lastErrorMessage: lastErrorMessage,
+    );
   }
 
   Future<void> goToCredentialsStep(WidgetTester tester) async {
@@ -120,6 +161,23 @@ void main() {
     await tester.pump();
     await tester.ensureVisible(find.widgetWithText(FilledButton, '다음'));
     await tester.tap(find.widgetWithText(FilledButton, '다음'));
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> completeSignUpFlow(
+    WidgetTester tester, {
+    required String businessNumber,
+    required String password,
+  }) async {
+    await goToCredentialsStep(tester);
+
+    await tester.enterText(find.byType(TextFormField).at(0), businessNumber);
+    await tester.tap(find.widgetWithText(OutlinedButton, '인증하기'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField).at(1), password);
+    await tester.enterText(find.byType(TextFormField).at(2), password);
+    await tester.tap(find.widgetWithText(FilledButton, '가입하기'));
     await tester.pumpAndSettle();
   }
 
@@ -255,6 +313,22 @@ void main() {
 
     expect(checkboxes.first.value, false);
     expect(checkboxes[3].value, false);
+  });
+
+  testWidgets('pending link가 있어도 회원가입 화면에서는 연결 안내 카드를 보여주지 않는다', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildTestApp(
+        initialSocialAuthState: SocialAuthState(
+          pendingLink: kakaoPendingLink(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byType(SocialLinkNoticeCard), findsNothing);
+    expect(find.text('카카오 계정을 연결하는 중입니다'), findsNothing);
   });
 
   testWidgets('사업자번호 인증은 validator 통과 후 mock 인증을 호출한다', (tester) async {
@@ -403,6 +477,240 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, '시작하기'));
     await tester.pumpAndSettle();
 
+    expect(
+      containerOf(tester).read(authControllerProvider),
+      const AuthState.authenticated(user),
+    );
+  });
+
+  testWidgets('카카오 pending link 상태로 회원가입 성공 시 연동 확인 다이얼로그가 뜬다', (tester) async {
+    const user = CurrentUser(
+      id: '1',
+      businessNumber: '1234567890',
+      username: 'New Owner',
+    );
+
+    when(
+      () => verifyBusinessNumberUseCase(businessNumber: '1234567890'),
+    ).thenReturn(TaskEither.right(unit));
+    when(
+      () => signUpUseCase(businessNumber: '1234567890', password: '1234'),
+    ).thenReturn(TaskEither.right(user));
+
+    await tester.pumpWidget(
+      buildTestApp(
+        initialSocialAuthState: SocialAuthState(
+          pendingLink: kakaoPendingLink(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await completeSignUpFlow(
+      tester,
+      businessNumber: '1234567890',
+      password: '1234',
+    );
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.text('카카오 계정 연동'), findsOneWidget);
+    expect(
+      find.text(
+        '최근 로그인한 카카오 게정을 가입과 연동할 수 있습니다. 다음 로그인시 카카오로 간편하게 로그인할 수 있어요.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.widgetWithText(TextButton, '나중에'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, '연동'), findsOneWidget);
+  });
+
+  testWidgets('연동 확인 다이얼로그에서 나중에를 누르면 welcome 단계로 이동하고 연동 호출은 없다', (
+    tester,
+  ) async {
+    const user = CurrentUser(
+      id: '1',
+      businessNumber: '1234567890',
+      username: 'New Owner',
+    );
+
+    when(
+      () => verifyBusinessNumberUseCase(businessNumber: '1234567890'),
+    ).thenReturn(TaskEither.right(unit));
+    when(
+      () => signUpUseCase(businessNumber: '1234567890', password: '1234'),
+    ).thenReturn(TaskEither.right(user));
+
+    await tester.pumpWidget(
+      buildTestApp(
+        initialSocialAuthState: SocialAuthState(
+          pendingLink: kakaoPendingLink(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await completeSignUpFlow(
+      tester,
+      businessNumber: '1234567890',
+      password: '1234',
+    );
+    await tester.tap(find.widgetWithText(TextButton, '나중에'));
+    await tester.pumpAndSettle();
+
+    verifyNever(
+      () => linkSocialAccountUseCase(
+        provider: SocialProvider.kakao,
+        accessToken: 'pending-kakao-token',
+      ),
+    );
+    expect(find.text('가입을 환영합니다'), findsOneWidget);
+  });
+
+  testWidgets('연동 확인 다이얼로그에서 연동을 누르면 연동 호출 후 welcome 단계로 이동한다', (tester) async {
+    const user = CurrentUser(
+      id: '1',
+      businessNumber: '1234567890',
+      username: 'New Owner',
+    );
+
+    when(
+      () => verifyBusinessNumberUseCase(businessNumber: '1234567890'),
+    ).thenReturn(TaskEither.right(unit));
+    when(
+      () => signUpUseCase(businessNumber: '1234567890', password: '1234'),
+    ).thenReturn(TaskEither.right(user));
+    when(
+      () => linkSocialAccountUseCase(
+        provider: SocialProvider.kakao,
+        accessToken: 'pending-kakao-token',
+      ),
+    ).thenReturn(TaskEither.right(unit));
+
+    await tester.pumpWidget(
+      buildTestApp(
+        initialSocialAuthState: SocialAuthState(
+          pendingLink: kakaoPendingLink(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await completeSignUpFlow(
+      tester,
+      businessNumber: '1234567890',
+      password: '1234',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, '연동'));
+    await tester.pumpAndSettle();
+
+    verify(
+      () => linkSocialAccountUseCase(
+        provider: SocialProvider.kakao,
+        accessToken: 'pending-kakao-token',
+      ),
+    ).called(1);
+    expect(find.text('가입을 환영합니다'), findsOneWidget);
+    expect(
+      containerOf(tester).read(socialAuthControllerProvider).pendingLink,
+      isNull,
+    );
+  });
+
+  testWidgets('연동 실패 시 snackbar만 보여주고 welcome 단계로 이동한다', (tester) async {
+    const user = CurrentUser(
+      id: '1',
+      businessNumber: '1234567890',
+      username: 'New Owner',
+    );
+
+    when(
+      () => verifyBusinessNumberUseCase(businessNumber: '1234567890'),
+    ).thenReturn(TaskEither.right(unit));
+    when(
+      () => signUpUseCase(businessNumber: '1234567890', password: '1234'),
+    ).thenReturn(TaskEither.right(user));
+    when(
+      () => linkSocialAccountUseCase(
+        provider: SocialProvider.kakao,
+        accessToken: 'pending-kakao-token',
+      ),
+    ).thenReturn(
+      TaskEither.left(const AuthFailure.common(CommonFailure.server('연동 실패'))),
+    );
+
+    await tester.pumpWidget(
+      buildTestApp(
+        initialSocialAuthState: SocialAuthState(
+          pendingLink: kakaoPendingLink(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await completeSignUpFlow(
+      tester,
+      businessNumber: '1234567890',
+      password: '1234',
+    );
+    await tester.tap(find.widgetWithText(FilledButton, '연동'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('연동 실패'), findsOneWidget);
+    expect(find.text('가입을 환영합니다'), findsOneWidget);
+    expect(find.byType(SocialLinkNoticeCard), findsNothing);
+    expect(
+      containerOf(
+        tester,
+      ).read(socialAuthControllerProvider).pendingLink?.linkStatus,
+      SocialLinkStatus.failed,
+    );
+  });
+
+  testWidgets('나중에를 선택한 뒤 시작하기를 누르면 pending link를 정리하고 authenticated 상태가 된다', (
+    tester,
+  ) async {
+    const user = CurrentUser(
+      id: '1',
+      businessNumber: '1234567890',
+      username: 'New Owner',
+    );
+
+    when(
+      () => verifyBusinessNumberUseCase(businessNumber: '1234567890'),
+    ).thenReturn(TaskEither.right(unit));
+    when(
+      () => signUpUseCase(businessNumber: '1234567890', password: '1234'),
+    ).thenReturn(TaskEither.right(user));
+
+    await tester.pumpWidget(
+      buildTestApp(
+        initialSocialAuthState: SocialAuthState(
+          pendingLink: kakaoPendingLink(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await completeSignUpFlow(
+      tester,
+      businessNumber: '1234567890',
+      password: '1234',
+    );
+    await tester.tap(find.widgetWithText(TextButton, '나중에'));
+    await tester.pumpAndSettle();
+
+    expect(
+      containerOf(tester).read(socialAuthControllerProvider).pendingLink,
+      isNotNull,
+    );
+
+    await tester.tap(find.widgetWithText(FilledButton, '시작하기'));
+    await tester.pumpAndSettle();
+
+    expect(
+      containerOf(tester).read(socialAuthControllerProvider).pendingLink,
+      isNull,
+    );
     expect(
       containerOf(tester).read(authControllerProvider),
       const AuthState.authenticated(user),

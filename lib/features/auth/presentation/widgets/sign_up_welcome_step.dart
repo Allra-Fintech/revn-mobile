@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../application/controllers/auth_controller.dart';
 import '../../application/controllers/sign_up_controller.dart';
+import '../../application/controllers/social_auth_controller.dart';
 
 class SignUpWelcomeStep extends ConsumerWidget {
   const SignUpWelcomeStep({super.key});
@@ -30,9 +31,14 @@ class SignUpWelcomeStep extends ConsumerWidget {
           child: FilledButton(
             onPressed: signedUpUser == null
                 ? null
-                : () => ref
-                      .read(authControllerProvider.notifier)
-                      .setAuthenticated(signedUpUser),
+                : () {
+                    ref
+                        .read(socialAuthControllerProvider.notifier)
+                        .clearPendingLink();
+                    ref
+                        .read(authControllerProvider.notifier)
+                        .setAuthenticated(signedUpUser);
+                  },
             child: const Text('시작하기'),
           ),
         ),
