@@ -134,7 +134,9 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                       description: shouldShowLinkFailureActions
                           ? pendingLink.lastErrorMessage ??
                                 '${pendingLink.provider.displayName} 계정 연동에 실패했습니다.'
-                          : '현재 카카오 계정과 연동된 사업자번호가 없습니다. \n최초 사업자번호로 로그인 후 카카오 로그인이 가능합니다.',
+                          : '현재 ${pendingLink.provider.displayName} 계정과 연동된 '
+                                '사업자번호가 없습니다. \n최초 사업자번호로 로그인 후 '
+                                '${pendingLink.provider.displayName} 로그인이 가능합니다.',
                       primaryActionLabel: shouldShowLinkFailureActions
                           ? '다시 시도'
                           : null,
