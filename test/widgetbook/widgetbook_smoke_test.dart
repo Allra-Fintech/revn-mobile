@@ -1,0 +1,66 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:widgetbook/widgetbook.dart';
+
+import 'package:revn/app/theme/app_theme.dart';
+import 'package:revn/core/config/app_config.dart';
+import 'package:revn/core/logging/app_talker.dart';
+import 'package:revn/features/auth/presentation/pages/sign_in_page.dart';
+
+import '../../widgetbook/src/preview/auth/auth_preview_scope.dart';
+import '../../widgetbook/src/preview/preview_shell.dart';
+import '../../widgetbook/use_cases/auth/sign_in_page/scenarios.dart';
+import '../../widgetbook/widgetbook.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  Future<SharedPreferences> createSharedPreferences() async {
+    SharedPreferences.setMockInitialValues(const {});
+    return SharedPreferences.getInstance();
+  }
+
+  const previewConfig = AppConfig(
+    environment: AppEnvironment.dev,
+    baseUrl: '',
+    apiMode: AppApiMode.mock,
+  );
+
+  testWidgets('Widgetbook 루트가 부팅된다', (tester) async {
+    final sharedPreferences = await createSharedPreferences();
+
+    await tester.pumpWidget(
+      WidgetbookApp(
+        sharedPreferences: sharedPreferences,
+        talker: createTalker(),
+        appConfig: previewConfig,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Widgetbook), findsOneWidget);
+  });
+
+  testWidgets('인증 기본 use case가 preview shell에서 렌더링된다', (tester) async {
+    final sharedPreferences = await createSharedPreferences();
+    final talker = createTalker();
+
+    await tester.pumpWidget(
+      WidgetbookPreviewShell(
+        sharedPreferences: sharedPreferences,
+        talker: talker,
+        appConfig: previewConfig,
+        theme: RevnTheme.light,
+        child: const AuthPreviewScope(
+          config: signInPageBasicConfig,
+          child: SignInPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SignInPage), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, '로그인'), findsOneWidget);
+  });
+}

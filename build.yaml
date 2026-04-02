@@ -1,0 +1,10 @@
+targets:
+  $default:
+    sources:
+      - lib/**
+      - test/**
+      - tool/**
+      - web/**
+      - widgetbook/**
+      - pubspec.*
+      - $package$
