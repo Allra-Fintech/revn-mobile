@@ -5,6 +5,8 @@ part 'sign_in_request_dto.g.dart';
 
 @freezed
 sealed class SignInRequestDto with _$SignInRequestDto {
+  const SignInRequestDto._();
+
   const factory SignInRequestDto({
     required String businessNumber,
     required String password,
@@ -12,4 +14,12 @@ sealed class SignInRequestDto with _$SignInRequestDto {
 
   factory SignInRequestDto.fromJson(Map<String, dynamic> json) =>
       _$SignInRequestDtoFromJson(json);
+
+  @override
+  String toString() {
+    return 'SignInRequestDto('
+        'hasBusinessNumber: ${businessNumber.isNotEmpty}, '
+        'hasPassword: ${password.isNotEmpty}'
+        ')';
+  }
 }

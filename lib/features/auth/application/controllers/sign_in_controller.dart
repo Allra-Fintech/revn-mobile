@@ -31,8 +31,16 @@ class SignInController extends Notifier<SignInControllerState> {
       password: password,
     ).run();
 
+    if (!ref.mounted) {
+      return;
+    }
+
     await result.match(
       (failure) async {
+        if (!ref.mounted) {
+          return;
+        }
+
         state = state.copyWith(
           submission: AsyncError<void>(failure, StackTrace.current),
           signedInUser: null,
@@ -42,6 +50,10 @@ class SignInController extends Notifier<SignInControllerState> {
         final linked = await ref
             .read(socialAuthControllerProvider.notifier)
             .completePendingLink(user);
+
+        if (!ref.mounted) {
+          return;
+        }
 
         state = state.copyWith(
           submission: const AsyncData<void>(null),
@@ -66,6 +78,10 @@ class SignInController extends Notifier<SignInControllerState> {
     final linked = await ref
         .read(socialAuthControllerProvider.notifier)
         .retryPendingLink(user);
+
+    if (!ref.mounted) {
+      return;
+    }
 
     if (!linked) {
       return;

@@ -7,11 +7,22 @@ part 'sign_in_form_provider.freezed.dart';
 
 @freezed
 sealed class SignInFormState with _$SignInFormState {
+  const SignInFormState._();
+
   const factory SignInFormState({
     @Default('') String businessNumber,
     @Default('') String password,
     @Default(true) bool obscurePassword,
   }) = _SignInFormState;
+
+  @override
+  String toString() {
+    return 'SignInFormState('
+        'hasBusinessNumber: ${businessNumber.isNotEmpty}, '
+        'hasPassword: ${password.isNotEmpty}, '
+        'obscurePassword: $obscurePassword'
+        ')';
+  }
 }
 
 final signInFormProvider =

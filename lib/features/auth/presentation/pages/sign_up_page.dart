@@ -101,7 +101,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
         return AlertDialog(
           title: const Text('카카오 계정 연동'),
           content: const Text(
-            '최근 로그인한 카카오 게정을 가입과 연동할 수 있습니다. 다음 로그인시 카카오로 간편하게 로그인할 수 있어요.',
+            '최근 로그인한 카카오 계정을 가입과 연동할 수 있습니다. 다음 로그인시 카카오로 간편하게 로그인할 수 있어요.',
           ),
           actions: [
             TextButton(

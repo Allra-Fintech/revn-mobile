@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:revn/core/errors/common_failure.dart';
 
+import '../../../../app/providers/app_providers.dart';
 import '../providers/auth_providers.dart';
 import '../states/social_auth_state.dart';
 import '../../domain/entities/current_user.dart';
@@ -61,9 +62,16 @@ class SocialAuthController extends Notifier<SocialAuthState> {
         },
       );
     } catch (error, stackTrace) {
+      ref
+          .read(talkerProvider)
+          .handle(
+            error,
+            stackTrace,
+            'Social sign-in failed while requesting provider token or authenticating.',
+          );
       state = state.copyWith(
         socialSignIn: AsyncError<void>(
-          AuthFailure.common(CommonFailure.unknown(error.toString())),
+          const AuthFailure.common(CommonFailure.unknown()),
           stackTrace,
         ),
       );
@@ -129,8 +137,8 @@ class SocialAuthController extends Notifier<SocialAuthState> {
       CommonAuthFailure(:final failure) => switch (failure) {
         NetworkFailure() => '네트워크 연결을 확인해주세요.',
         StorageFailure() => '기기 저장소 접근에 실패했습니다.',
-        ServerFailure(:final message) => message ?? '요청 처리 중 오류가 발생했습니다.',
-        UnknownFailure(:final message) => message ?? '알 수 없는 오류가 발생했습니다.',
+        ServerFailure() => '요청 처리 중 오류가 발생했습니다.',
+        UnknownFailure() => '알 수 없는 오류가 발생했습니다.',
       },
     };
   }

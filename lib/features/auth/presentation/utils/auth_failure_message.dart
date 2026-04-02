@@ -11,8 +11,8 @@ String authFailureMessage(AuthFailure failure) {
     CommonAuthFailure(:final failure) => switch (failure) {
       NetworkFailure() => '네트워크 연결을 확인해주세요.',
       StorageFailure() => '기기 저장소 접근에 실패했습니다.',
-      ServerFailure(:final message) => message ?? '요청 처리 중 오류가 발생했습니다.',
-      UnknownFailure(:final message) => message ?? '알 수 없는 오류가 발생했습니다.',
+      ServerFailure() => '요청 처리 중 오류가 발생했습니다.',
+      UnknownFailure() => '알 수 없는 오류가 발생했습니다.',
     },
   };
 }

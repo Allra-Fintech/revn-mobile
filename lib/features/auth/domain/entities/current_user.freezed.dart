@@ -32,10 +32,6 @@ bool operator ==(Object other) {
 @override
 int get hashCode => Object.hash(runtimeType,id,businessNumber,username);
 
-@override
-String toString() {
-  return 'CurrentUser(id: $id, businessNumber: $businessNumber, username: $username)';
-}
 
 
 }
@@ -201,8 +197,8 @@ return $default(_that.id,_that.businessNumber,_that.username);case _:
 /// @nodoc
 
 
-class _CurrentUser implements CurrentUser {
-  const _CurrentUser({required this.id, required this.businessNumber, this.username});
+class _CurrentUser extends CurrentUser {
+  const _CurrentUser({required this.id, required this.businessNumber, this.username}): super._();
   
 
 @override final  String id;
@@ -226,10 +222,6 @@ bool operator ==(Object other) {
 @override
 int get hashCode => Object.hash(runtimeType,id,businessNumber,username);
 
-@override
-String toString() {
-  return 'CurrentUser(id: $id, businessNumber: $businessNumber, username: $username)';
-}
 
 
 }

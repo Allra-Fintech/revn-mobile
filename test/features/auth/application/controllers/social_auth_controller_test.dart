@@ -2,7 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:revn/app/providers/app_providers.dart';
 import 'package:revn/core/errors/common_failure.dart';
+import 'package:revn/core/logging/app_talker.dart';
 import 'package:revn/features/auth/application/controllers/auth_controller.dart';
 import 'package:revn/features/auth/application/controllers/social_auth_controller.dart';
 import 'package:revn/features/auth/application/providers/auth_providers.dart';
@@ -54,6 +56,7 @@ void main() {
           linkSocialAccountUseCase,
         ),
         socialTokenProviderProvider.overrideWithValue(socialTokenProvider),
+        talkerProvider.overrideWith((ref) => createTalker()),
       ],
     );
   });
@@ -180,6 +183,28 @@ void main() {
     expect(linked, false);
     expect(state.pendingLink, isNotNull);
     expect(state.pendingLink!.linkStatus, SocialLinkStatus.failed);
-    expect(state.pendingLink!.lastErrorMessage, '연동 실패');
+    expect(state.pendingLink!.lastErrorMessage, '요청 처리 중 오류가 발생했습니다.');
+  });
+
+  test('소셜 로그인 중 예외가 발생하면 raw exception 문자열을 사용자 상태에 남기지 않는다', () async {
+    when(
+      () => socialTokenProvider.getAccessToken(SocialProvider.kakao),
+    ).thenThrow(Exception('raw-social-error'));
+
+    await container
+        .read(socialAuthControllerProvider.notifier)
+        .signInWithProvider(SocialProvider.kakao);
+
+    final state = container.read(socialAuthControllerProvider);
+
+    expect(state.socialSignIn.hasError, true);
+    expect(
+      state.socialSignIn.error,
+      const AuthFailure.common(CommonFailure.unknown()),
+    );
+    expect(
+      state.socialSignIn.error.toString(),
+      isNot(contains('raw-social-error')),
+    );
   });
 }

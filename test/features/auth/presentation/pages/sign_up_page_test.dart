@@ -360,6 +360,29 @@ void main() {
     expect(find.text('사업자번호 인증이 완료되었습니다.'), findsOneWidget);
   });
 
+  testWidgets('비밀번호 입력 필드는 자동수정과 입력 제안을 비활성화한다', (tester) async {
+    await pumpPage(tester);
+    await goToCredentialsStep(tester);
+
+    final passwordField = tester.widget<EditableText>(
+      find.descendant(
+        of: find.byType(TextFormField).at(1),
+        matching: find.byType(EditableText),
+      ),
+    );
+    final passwordConfirmationField = tester.widget<EditableText>(
+      find.descendant(
+        of: find.byType(TextFormField).at(2),
+        matching: find.byType(EditableText),
+      ),
+    );
+
+    expect(passwordField.autocorrect, isFalse);
+    expect(passwordField.enableSuggestions, isFalse);
+    expect(passwordConfirmationField.autocorrect, isFalse);
+    expect(passwordConfirmationField.enableSuggestions, isFalse);
+  });
+
   testWidgets('인증 후 사업자번호를 수정하면 재인증이 필요해진다', (tester) async {
     when(
       () => verifyBusinessNumberUseCase(businessNumber: '1234567890'),
@@ -516,7 +539,7 @@ void main() {
     expect(find.text('카카오 계정 연동'), findsOneWidget);
     expect(
       find.text(
-        '최근 로그인한 카카오 게정을 가입과 연동할 수 있습니다. 다음 로그인시 카카오로 간편하게 로그인할 수 있어요.',
+        '최근 로그인한 카카오 계정을 가입과 연동할 수 있습니다. 다음 로그인시 카카오로 간편하게 로그인할 수 있어요.',
       ),
       findsOneWidget,
     );
@@ -655,7 +678,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, '연동'));
     await tester.pumpAndSettle();
 
-    expect(find.text('연동 실패'), findsOneWidget);
+    expect(find.text('요청 처리 중 오류가 발생했습니다.'), findsOneWidget);
     expect(find.text('가입을 환영합니다'), findsOneWidget);
     expect(find.byType(SocialLinkNoticeCard), findsNothing);
     expect(

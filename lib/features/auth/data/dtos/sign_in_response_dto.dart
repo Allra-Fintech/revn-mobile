@@ -7,6 +7,8 @@ part 'sign_in_response_dto.g.dart';
 
 @freezed
 sealed class SignInResponseDto with _$SignInResponseDto {
+  const SignInResponseDto._();
+
   const factory SignInResponseDto({
     required String accessToken,
     required String refreshToken,
@@ -15,4 +17,13 @@ sealed class SignInResponseDto with _$SignInResponseDto {
 
   factory SignInResponseDto.fromJson(Map<String, dynamic> json) =>
       _$SignInResponseDtoFromJson(json);
+
+  @override
+  String toString() {
+    return 'SignInResponseDto('
+        'hasAccessToken: ${accessToken.isNotEmpty}, '
+        'hasRefreshToken: ${refreshToken.isNotEmpty}, '
+        'hasUser: true'
+        ')';
+  }
 }

@@ -125,11 +125,14 @@ void main() {
         matching: find.byType(EditableText),
       ),
     );
-    final container = containerOf(tester);
+    final visibilityToggle = find.descendant(
+      of: find.byType(TextFormField).at(1),
+      matching: find.byType(IconButton),
+    );
 
     expect(passwordField().obscureText, isTrue);
 
-    container.read(signInFormProvider.notifier).toggleObscurePassword();
+    await tester.tap(visibilityToggle);
     await tester.pump();
 
     expect(passwordField().obscureText, isFalse);

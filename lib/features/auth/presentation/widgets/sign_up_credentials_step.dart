@@ -86,12 +86,15 @@ class _SignUpCredentialsStepState extends ConsumerState<SignUpCredentialsStep> {
     }
 
     final flow = ref.read(signUpFlowProvider);
+    final verifiedBusinessNumber = flow.businessNumber;
     final isVerified = await ref
         .read(signUpControllerProvider.notifier)
-        .verifyBusinessNumber(businessNumber: flow.businessNumber);
+        .verifyBusinessNumber(businessNumber: verifiedBusinessNumber);
 
     if (isVerified && mounted) {
-      ref.read(signUpFlowProvider.notifier).markBusinessNumberVerified();
+      ref
+          .read(signUpFlowProvider.notifier)
+          .markBusinessNumberVerified(verifiedBusinessNumber);
     }
   }
 
@@ -211,6 +214,8 @@ class _SignUpCredentialsStepState extends ConsumerState<SignUpCredentialsStep> {
                 controller: _passwordController,
                 autovalidateMode: autovalidateMode,
                 obscureText: flow.obscurePassword,
+                autocorrect: false,
+                enableSuggestions: false,
                 enabled: !isBusy,
                 textInputAction: TextInputAction.next,
                 onChanged: flowNotifier.updatePassword,
@@ -234,6 +239,8 @@ class _SignUpCredentialsStepState extends ConsumerState<SignUpCredentialsStep> {
                 controller: _passwordConfirmationController,
                 autovalidateMode: autovalidateMode,
                 obscureText: flow.obscurePasswordConfirmation,
+                autocorrect: false,
+                enableSuggestions: false,
                 enabled: !isBusy,
                 textInputAction: TextInputAction.done,
                 onChanged: flowNotifier.updatePasswordConfirmation,

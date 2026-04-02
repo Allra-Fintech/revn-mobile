@@ -9,6 +9,8 @@ enum SignUpStep { agreements, credentials, welcome }
 
 @freezed
 sealed class SignUpFlowState with _$SignUpFlowState {
+  const SignUpFlowState._();
+
   const factory SignUpFlowState({
     @Default(SignUpStep.agreements) SignUpStep step,
     @Default(false) bool serviceTermsAgreed,
@@ -22,6 +24,23 @@ sealed class SignUpFlowState with _$SignUpFlowState {
     @Default(true) bool obscurePassword,
     @Default(true) bool obscurePasswordConfirmation,
   }) = _SignUpFlowState;
+
+  @override
+  String toString() {
+    return 'SignUpFlowState('
+        'step: $step, '
+        'serviceTermsAgreed: $serviceTermsAgreed, '
+        'privacyCollectionAgreed: $privacyCollectionAgreed, '
+        'privacySharingAgreed: $privacySharingAgreed, '
+        'marketingAgreed: $marketingAgreed, '
+        'hasBusinessNumber: ${businessNumber.isNotEmpty}, '
+        'hasVerifiedBusinessNumber: ${verifiedBusinessNumber != null && verifiedBusinessNumber!.isNotEmpty}, '
+        'hasPassword: ${password.isNotEmpty}, '
+        'hasPasswordConfirmation: ${passwordConfirmation.isNotEmpty}, '
+        'obscurePassword: $obscurePassword, '
+        'obscurePasswordConfirmation: $obscurePasswordConfirmation'
+        ')';
+  }
 }
 
 extension SignUpFlowStateX on SignUpFlowState {
@@ -91,8 +110,16 @@ class SignUpFlowNotifier extends Notifier<SignUpFlowState> {
     );
   }
 
-  void markBusinessNumberVerified() {
-    state = state.copyWith(verifiedBusinessNumber: state.businessNumber);
+  void markBusinessNumberVerified(String verifiedBusinessNumber) {
+    final normalizedBusinessNumber = normalizeBusinessNumber(
+      verifiedBusinessNumber,
+    );
+
+    if (normalizedBusinessNumber != state.businessNumber) {
+      return;
+    }
+
+    state = state.copyWith(verifiedBusinessNumber: normalizedBusinessNumber);
   }
 
   void updatePassword(String password) {

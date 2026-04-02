@@ -22,7 +22,11 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     if (_requested) return;
     _requested = true;
 
-    Future.microtask(() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
       ref.read(authControllerProvider.notifier).restoreSession();
     });
   }

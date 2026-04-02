@@ -35,10 +35,6 @@ bool operator ==(Object other) {
 @override
 int get hashCode => Object.hash(runtimeType,accessToken,refreshToken,user);
 
-@override
-String toString() {
-  return 'SignInResponseDto(accessToken: $accessToken, refreshToken: $refreshToken, user: $user)';
-}
 
 
 }
@@ -213,8 +209,8 @@ return $default(_that.accessToken,_that.refreshToken,_that.user);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _SignInResponseDto implements SignInResponseDto {
-  const _SignInResponseDto({required this.accessToken, required this.refreshToken, required this.user});
+class _SignInResponseDto extends SignInResponseDto {
+  const _SignInResponseDto({required this.accessToken, required this.refreshToken, required this.user}): super._();
   factory _SignInResponseDto.fromJson(Map<String, dynamic> json) => _$SignInResponseDtoFromJson(json);
 
 @override final  String accessToken;
@@ -241,10 +237,6 @@ bool operator ==(Object other) {
 @override
 int get hashCode => Object.hash(runtimeType,accessToken,refreshToken,user);
 
-@override
-String toString() {
-  return 'SignInResponseDto(accessToken: $accessToken, refreshToken: $refreshToken, user: $user)';
-}
 
 
 }

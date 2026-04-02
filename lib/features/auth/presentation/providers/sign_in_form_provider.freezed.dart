@@ -32,10 +32,6 @@ bool operator ==(Object other) {
 @override
 int get hashCode => Object.hash(runtimeType,businessNumber,password,obscurePassword);
 
-@override
-String toString() {
-  return 'SignInFormState(businessNumber: $businessNumber, password: $password, obscurePassword: $obscurePassword)';
-}
 
 
 }
@@ -201,8 +197,8 @@ return $default(_that.businessNumber,_that.password,_that.obscurePassword);case 
 /// @nodoc
 
 
-class _SignInFormState implements SignInFormState {
-  const _SignInFormState({this.businessNumber = '', this.password = '', this.obscurePassword = true});
+class _SignInFormState extends SignInFormState {
+  const _SignInFormState({this.businessNumber = '', this.password = '', this.obscurePassword = true}): super._();
   
 
 @override@JsonKey() final  String businessNumber;
@@ -226,10 +222,6 @@ bool operator ==(Object other) {
 @override
 int get hashCode => Object.hash(runtimeType,businessNumber,password,obscurePassword);
 
-@override
-String toString() {
-  return 'SignInFormState(businessNumber: $businessNumber, password: $password, obscurePassword: $obscurePassword)';
-}
 
 
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
@@ -10,7 +11,14 @@ enum DebugRoute {
 }
 
 abstract final class DebugRoutes {
-  static List<RouteBase> buildDebugRoutes(Talker talker) {
+  static List<RouteBase> buildDebugRoutes(
+    Talker talker, {
+    bool enabled = kDebugMode,
+  }) {
+    if (!enabled) {
+      return const [];
+    }
+
     return [
       GoRoute(
         name: DebugRoute.logs.name,

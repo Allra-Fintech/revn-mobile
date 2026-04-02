@@ -32,10 +32,6 @@ bool operator ==(Object other) {
 @override
 int get hashCode => Object.hash(runtimeType,step,serviceTermsAgreed,privacyCollectionAgreed,privacySharingAgreed,marketingAgreed,businessNumber,verifiedBusinessNumber,password,passwordConfirmation,obscurePassword,obscurePasswordConfirmation);
 
-@override
-String toString() {
-  return 'SignUpFlowState(step: $step, serviceTermsAgreed: $serviceTermsAgreed, privacyCollectionAgreed: $privacyCollectionAgreed, privacySharingAgreed: $privacySharingAgreed, marketingAgreed: $marketingAgreed, businessNumber: $businessNumber, verifiedBusinessNumber: $verifiedBusinessNumber, password: $password, passwordConfirmation: $passwordConfirmation, obscurePassword: $obscurePassword, obscurePasswordConfirmation: $obscurePasswordConfirmation)';
-}
 
 
 }
@@ -209,8 +205,8 @@ return $default(_that.step,_that.serviceTermsAgreed,_that.privacyCollectionAgree
 /// @nodoc
 
 
-class _SignUpFlowState implements SignUpFlowState {
-  const _SignUpFlowState({this.step = SignUpStep.agreements, this.serviceTermsAgreed = false, this.privacyCollectionAgreed = false, this.privacySharingAgreed = false, this.marketingAgreed = false, this.businessNumber = '', this.verifiedBusinessNumber, this.password = '', this.passwordConfirmation = '', this.obscurePassword = true, this.obscurePasswordConfirmation = true});
+class _SignUpFlowState extends SignUpFlowState {
+  const _SignUpFlowState({this.step = SignUpStep.agreements, this.serviceTermsAgreed = false, this.privacyCollectionAgreed = false, this.privacySharingAgreed = false, this.marketingAgreed = false, this.businessNumber = '', this.verifiedBusinessNumber, this.password = '', this.passwordConfirmation = '', this.obscurePassword = true, this.obscurePasswordConfirmation = true}): super._();
   
 
 @override@JsonKey() final  SignUpStep step;
@@ -242,10 +238,6 @@ bool operator ==(Object other) {
 @override
 int get hashCode => Object.hash(runtimeType,step,serviceTermsAgreed,privacyCollectionAgreed,privacySharingAgreed,marketingAgreed,businessNumber,verifiedBusinessNumber,password,passwordConfirmation,obscurePassword,obscurePasswordConfirmation);
 
-@override
-String toString() {
-  return 'SignUpFlowState(step: $step, serviceTermsAgreed: $serviceTermsAgreed, privacyCollectionAgreed: $privacyCollectionAgreed, privacySharingAgreed: $privacySharingAgreed, marketingAgreed: $marketingAgreed, businessNumber: $businessNumber, verifiedBusinessNumber: $verifiedBusinessNumber, password: $password, passwordConfirmation: $passwordConfirmation, obscurePassword: $obscurePassword, obscurePasswordConfirmation: $obscurePasswordConfirmation)';
-}
 
 
 }

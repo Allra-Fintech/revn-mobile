@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:mocktail/mocktail.dart';
 
 import 'package:revn/core/errors/common_failure.dart';
 import 'package:revn/features/auth/application/controllers/auth_controller.dart';
@@ -84,5 +86,36 @@ void main() {
       state.submission.error,
       const AuthFailure.common(CommonFailure.network()),
     );
+  });
+
+  test('autoDispose 이후 비동기 로그인 완료가 auth 상태를 덮어쓰지 않는다', () async {
+    const user = CurrentUser(
+      id: '1',
+      businessNumber: '1234567890',
+      username: 'Sangmin',
+    );
+    final completer = Completer<CurrentUser>();
+
+    when(
+      () => signInUseCase(businessNumber: '1234567890', password: '1234'),
+    ).thenReturn(
+      TaskEither<AuthFailure, CurrentUser>.tryCatch(
+        () => completer.future,
+        (error, stackTrace) => const AuthFailure.invalidCredentials(),
+      ),
+    );
+
+    final subscription = container.listen(signInControllerProvider, (_, _) {});
+    final future = container
+        .read(signInControllerProvider.notifier)
+        .signIn(businessNumber: '1234567890', password: '1234');
+
+    subscription.close();
+    await container.pump();
+
+    completer.complete(user);
+    await expectLater(future, completes);
+
+    expect(container.read(authControllerProvider), const AuthState.initial());
   });
 }

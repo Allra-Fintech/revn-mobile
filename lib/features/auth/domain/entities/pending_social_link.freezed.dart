@@ -32,10 +32,6 @@ bool operator ==(Object other) {
 @override
 int get hashCode => Object.hash(runtimeType,provider,accessToken,linkStatus,lastErrorMessage);
 
-@override
-String toString() {
-  return 'PendingSocialLink(provider: $provider, accessToken: $accessToken, linkStatus: $linkStatus, lastErrorMessage: $lastErrorMessage)';
-}
 
 
 }
@@ -202,8 +198,8 @@ return $default(_that.provider,_that.accessToken,_that.linkStatus,_that.lastErro
 /// @nodoc
 
 
-class _PendingSocialLink implements PendingSocialLink {
-  const _PendingSocialLink({required this.provider, required this.accessToken, this.linkStatus = SocialLinkStatus.pending, this.lastErrorMessage});
+class _PendingSocialLink extends PendingSocialLink {
+  const _PendingSocialLink({required this.provider, required this.accessToken, this.linkStatus = SocialLinkStatus.pending, this.lastErrorMessage}): super._();
   
 
 @override final  SocialProvider provider;
@@ -228,10 +224,6 @@ bool operator ==(Object other) {
 @override
 int get hashCode => Object.hash(runtimeType,provider,accessToken,linkStatus,lastErrorMessage);
 
-@override
-String toString() {
-  return 'PendingSocialLink(provider: $provider, accessToken: $accessToken, linkStatus: $linkStatus, lastErrorMessage: $lastErrorMessage)';
-}
 
 
 }
