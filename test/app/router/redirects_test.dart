@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:revn/app/router/debug_routes.dart';
 import 'package:revn/app/router/redirects.dart';
+import 'package:revn/core/errors/common_failure.dart';
 import 'package:revn/features/auth/application/states/auth_state.dart';
 import 'package:revn/features/auth/domain/entities/current_user.dart';
+import 'package:revn/features/auth/domain/failures/auth_failure.dart';
 import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
 import 'package:revn/features/home/presentation/routes/home_routes.dart';
 
@@ -14,7 +16,7 @@ void main() {
   );
 
   group('resolveAppRedirect', () {
-    test('routes initial and loading states to splash', () {
+    test('routes initial, loading, and restoreFailed states to splash', () {
       expect(
         resolveAppRedirect(
           authState: const AuthState.initial(),
@@ -25,6 +27,15 @@ void main() {
       expect(
         resolveAppRedirect(
           authState: const AuthState.loading(),
+          location: HomeRoute.home.path,
+        ),
+        AuthRoute.splash.path,
+      );
+      expect(
+        resolveAppRedirect(
+          authState: const AuthState.restoreFailed(
+            AuthFailure.common(CommonFailure.network()),
+          ),
           location: HomeRoute.home.path,
         ),
         AuthRoute.splash.path,
@@ -66,6 +77,9 @@ void main() {
 
     test('redirects unauthenticated users from splash and home to sign-in', () {
       const authState = AuthState.unauthenticated();
+      const authStateWithNotice = AuthState.unauthenticated(
+        notice: AuthFailure.common(CommonFailure.storage()),
+      );
 
       expect(
         resolveAppRedirect(
@@ -76,6 +90,13 @@ void main() {
       );
       expect(
         resolveAppRedirect(authState: authState, location: HomeRoute.home.path),
+        AuthRoute.signIn.path,
+      );
+      expect(
+        resolveAppRedirect(
+          authState: authStateWithNotice,
+          location: HomeRoute.home.path,
+        ),
         AuthRoute.signIn.path,
       );
     });

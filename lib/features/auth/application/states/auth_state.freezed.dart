@@ -55,12 +55,13 @@ extension AuthStatePatterns on AuthState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Initial value)?  initial,TResult Function( _Loading value)?  loading,TResult Function( _Authenticated value)?  authenticated,TResult Function( _Unauthenticated value)?  unauthenticated,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Initial value)?  initial,TResult Function( _Loading value)?  loading,TResult Function( _RestoreFailed value)?  restoreFailed,TResult Function( _Authenticated value)?  authenticated,TResult Function( _Unauthenticated value)?  unauthenticated,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial(_that);case _Loading() when loading != null:
-return loading(_that);case _Authenticated() when authenticated != null:
+return loading(_that);case _RestoreFailed() when restoreFailed != null:
+return restoreFailed(_that);case _Authenticated() when authenticated != null:
 return authenticated(_that);case _Unauthenticated() when unauthenticated != null:
 return unauthenticated(_that);case _:
   return orElse();
@@ -80,12 +81,13 @@ return unauthenticated(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Initial value)  initial,required TResult Function( _Loading value)  loading,required TResult Function( _Authenticated value)  authenticated,required TResult Function( _Unauthenticated value)  unauthenticated,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Initial value)  initial,required TResult Function( _Loading value)  loading,required TResult Function( _RestoreFailed value)  restoreFailed,required TResult Function( _Authenticated value)  authenticated,required TResult Function( _Unauthenticated value)  unauthenticated,}){
 final _that = this;
 switch (_that) {
 case _Initial():
 return initial(_that);case _Loading():
-return loading(_that);case _Authenticated():
+return loading(_that);case _RestoreFailed():
+return restoreFailed(_that);case _Authenticated():
 return authenticated(_that);case _Unauthenticated():
 return unauthenticated(_that);}
 }
@@ -101,12 +103,13 @@ return unauthenticated(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Initial value)?  initial,TResult? Function( _Loading value)?  loading,TResult? Function( _Authenticated value)?  authenticated,TResult? Function( _Unauthenticated value)?  unauthenticated,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Initial value)?  initial,TResult? Function( _Loading value)?  loading,TResult? Function( _RestoreFailed value)?  restoreFailed,TResult? Function( _Authenticated value)?  authenticated,TResult? Function( _Unauthenticated value)?  unauthenticated,}){
 final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial(_that);case _Loading() when loading != null:
-return loading(_that);case _Authenticated() when authenticated != null:
+return loading(_that);case _RestoreFailed() when restoreFailed != null:
+return restoreFailed(_that);case _Authenticated() when authenticated != null:
 return authenticated(_that);case _Unauthenticated() when unauthenticated != null:
 return unauthenticated(_that);case _:
   return null;
@@ -125,13 +128,14 @@ return unauthenticated(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( CurrentUser user)?  authenticated,TResult Function()?  unauthenticated,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( AuthFailure failure)?  restoreFailed,TResult Function( CurrentUser user)?  authenticated,TResult Function( AuthFailure? notice)?  unauthenticated,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
-return loading();case _Authenticated() when authenticated != null:
+return loading();case _RestoreFailed() when restoreFailed != null:
+return restoreFailed(_that.failure);case _Authenticated() when authenticated != null:
 return authenticated(_that.user);case _Unauthenticated() when unauthenticated != null:
-return unauthenticated();case _:
+return unauthenticated(_that.notice);case _:
   return orElse();
 
 }
@@ -149,13 +153,14 @@ return unauthenticated();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( CurrentUser user)  authenticated,required TResult Function()  unauthenticated,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( AuthFailure failure)  restoreFailed,required TResult Function( CurrentUser user)  authenticated,required TResult Function( AuthFailure? notice)  unauthenticated,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _Loading():
-return loading();case _Authenticated():
+return loading();case _RestoreFailed():
+return restoreFailed(_that.failure);case _Authenticated():
 return authenticated(_that.user);case _Unauthenticated():
-return unauthenticated();}
+return unauthenticated(_that.notice);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -169,13 +174,14 @@ return unauthenticated();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( CurrentUser user)?  authenticated,TResult? Function()?  unauthenticated,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( AuthFailure failure)?  restoreFailed,TResult? Function( CurrentUser user)?  authenticated,TResult? Function( AuthFailure? notice)?  unauthenticated,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
-return loading();case _Authenticated() when authenticated != null:
+return loading();case _RestoreFailed() when restoreFailed != null:
+return restoreFailed(_that.failure);case _Authenticated() when authenticated != null:
 return authenticated(_that.user);case _Unauthenticated() when unauthenticated != null:
-return unauthenticated();case _:
+return unauthenticated(_that.notice);case _:
   return null;
 
 }
@@ -246,6 +252,81 @@ String toString() {
 
 
 
+
+/// @nodoc
+
+
+class _RestoreFailed implements AuthState {
+  const _RestoreFailed(this.failure);
+  
+
+ final  AuthFailure failure;
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RestoreFailedCopyWith<_RestoreFailed> get copyWith => __$RestoreFailedCopyWithImpl<_RestoreFailed>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RestoreFailed&&(identical(other.failure, failure) || other.failure == failure));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,failure);
+
+@override
+String toString() {
+  return 'AuthState.restoreFailed(failure: $failure)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$RestoreFailedCopyWith<$Res> implements $AuthStateCopyWith<$Res> {
+  factory _$RestoreFailedCopyWith(_RestoreFailed value, $Res Function(_RestoreFailed) _then) = __$RestoreFailedCopyWithImpl;
+@useResult
+$Res call({
+ AuthFailure failure
+});
+
+
+$AuthFailureCopyWith<$Res> get failure;
+
+}
+/// @nodoc
+class __$RestoreFailedCopyWithImpl<$Res>
+    implements _$RestoreFailedCopyWith<$Res> {
+  __$RestoreFailedCopyWithImpl(this._self, this._then);
+
+  final _RestoreFailed _self;
+  final $Res Function(_RestoreFailed) _then;
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? failure = null,}) {
+  return _then(_RestoreFailed(
+null == failure ? _self.failure : failure // ignore: cast_nullable_to_non_nullable
+as AuthFailure,
+  ));
+}
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$AuthFailureCopyWith<$Res> get failure {
+  
+  return $AuthFailureCopyWith<$Res>(_self.failure, (value) {
+    return _then(_self.copyWith(failure: value));
+  });
+}
+}
 
 /// @nodoc
 
@@ -326,32 +407,78 @@ $CurrentUserCopyWith<$Res> get user {
 
 
 class _Unauthenticated implements AuthState {
-  const _Unauthenticated();
+  const _Unauthenticated({this.notice});
   
 
+ final  AuthFailure? notice;
 
-
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UnauthenticatedCopyWith<_Unauthenticated> get copyWith => __$UnauthenticatedCopyWithImpl<_Unauthenticated>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Unauthenticated);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Unauthenticated&&(identical(other.notice, notice) || other.notice == notice));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,notice);
 
 @override
 String toString() {
-  return 'AuthState.unauthenticated()';
+  return 'AuthState.unauthenticated(notice: $notice)';
 }
 
 
 }
 
+/// @nodoc
+abstract mixin class _$UnauthenticatedCopyWith<$Res> implements $AuthStateCopyWith<$Res> {
+  factory _$UnauthenticatedCopyWith(_Unauthenticated value, $Res Function(_Unauthenticated) _then) = __$UnauthenticatedCopyWithImpl;
+@useResult
+$Res call({
+ AuthFailure? notice
+});
 
 
+$AuthFailureCopyWith<$Res>? get notice;
+
+}
+/// @nodoc
+class __$UnauthenticatedCopyWithImpl<$Res>
+    implements _$UnauthenticatedCopyWith<$Res> {
+  __$UnauthenticatedCopyWithImpl(this._self, this._then);
+
+  final _Unauthenticated _self;
+  final $Res Function(_Unauthenticated) _then;
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? notice = freezed,}) {
+  return _then(_Unauthenticated(
+notice: freezed == notice ? _self.notice : notice // ignore: cast_nullable_to_non_nullable
+as AuthFailure?,
+  ));
+}
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$AuthFailureCopyWith<$Res>? get notice {
+    if (_self.notice == null) {
+    return null;
+  }
+
+  return $AuthFailureCopyWith<$Res>(_self.notice!, (value) {
+    return _then(_self.copyWith(notice: value));
+  });
+}
+}
 
 // dart format on

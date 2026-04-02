@@ -16,6 +16,7 @@ String? resolveAppRedirect({
   return authState.when(
     initial: () => isSplash ? null : AuthRoute.splash.path,
     loading: () => isSplash ? null : AuthRoute.splash.path,
+    restoreFailed: (_) => isSplash ? null : AuthRoute.splash.path,
     authenticated: (_) {
       if (isAuthPage || isSplash) {
         return HomeRoute.home.path;
@@ -23,7 +24,7 @@ String? resolveAppRedirect({
 
       return null;
     },
-    unauthenticated: () {
+    unauthenticated: (_) {
       if (isHome || isSplash) {
         return AuthRoute.signIn.path;
       }

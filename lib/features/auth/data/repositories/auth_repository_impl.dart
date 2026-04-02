@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/errors/common_failure.dart';
 import '../../domain/entities/current_user.dart';
@@ -164,6 +165,10 @@ class AuthRepositoryImpl implements AuthRepository {
     }
 
     if (error is StateError) {
+      return const AuthFailure.common(CommonFailure.storage());
+    }
+
+    if (error is PlatformException || error is MissingPluginException) {
       return const AuthFailure.common(CommonFailure.storage());
     }
 

@@ -4,10 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:revn/app/providers/app_providers.dart';
 import 'package:revn/app/router/app_router.dart';
+import 'package:revn/core/errors/common_failure.dart';
 import 'package:revn/core/logging/app_talker.dart';
 import 'package:revn/features/auth/application/controllers/auth_controller.dart';
 import 'package:revn/features/auth/application/states/auth_state.dart';
 import 'package:revn/features/auth/domain/entities/current_user.dart';
+import 'package:revn/features/auth/domain/failures/auth_failure.dart';
 import 'package:revn/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:revn/features/auth/presentation/pages/splash_page.dart';
 import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
@@ -90,6 +92,20 @@ void main() {
     expect(find.byType(SplashPage), findsOneWidget);
   });
 
+  testWidgets('restoreFailed state routes to splash', (tester) async {
+    await pumpRouterApp(
+      tester,
+      TestAuthController(
+        const AuthState.restoreFailed(
+          AuthFailure.common(CommonFailure.network()),
+        ),
+      ),
+    );
+
+    expect(locationOf(tester), AuthRoute.splash.path);
+    expect(find.byType(SplashPage), findsOneWidget);
+  });
+
   testWidgets('authenticated state redirects splash to home', (tester) async {
     await pumpRouterApp(
       tester,
@@ -126,6 +142,22 @@ void main() {
     routerOf(tester).go(HomeRoute.home.path);
     await tester.pump();
     await tester.pump();
+
+    expect(locationOf(tester), AuthRoute.signIn.path);
+    expect(find.byType(SignInPage), findsOneWidget);
+  });
+
+  testWidgets('unauthenticated notice state still redirects to sign-in', (
+    tester,
+  ) async {
+    await pumpRouterApp(
+      tester,
+      TestAuthController(
+        const AuthState.unauthenticated(
+          notice: AuthFailure.common(CommonFailure.storage()),
+        ),
+      ),
+    );
 
     expect(locationOf(tester), AuthRoute.signIn.path);
     expect(find.byType(SignInPage), findsOneWidget);

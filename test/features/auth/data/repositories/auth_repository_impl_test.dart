@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:revn/core/errors/common_failure.dart';
@@ -409,6 +410,19 @@ void main() {
         () => remoteDataSource.getMe(appAccessToken: 'access-token'),
       ).called(1);
     });
+
+    test('secure storage plugin 예외는 storage failure를 반환한다', () async {
+      when(
+        () => localDataSource.getAccessToken(),
+      ).thenThrow(MissingPluginException('secure storage unavailable'));
+
+      final result = await repository.restoreSession().run();
+
+      expect(result.isLeft(), true);
+      result.match((failure) {
+        expect(failure, const AuthFailure.common(CommonFailure.storage()));
+      }, (_) => fail('Left expected'));
+    });
   });
 
   group('signOut', () {
@@ -419,6 +433,19 @@ void main() {
 
       expect(result.isRight(), true);
       verify(() => localDataSource.clearTokens()).called(1);
+    });
+
+    test('storage platform 예외는 storage failure를 반환한다', () async {
+      when(
+        () => localDataSource.clearTokens(),
+      ).thenThrow(PlatformException(code: 'storage_error'));
+
+      final result = await repository.signOut().run();
+
+      expect(result.isLeft(), true);
+      result.match((failure) {
+        expect(failure, const AuthFailure.common(CommonFailure.storage()));
+      }, (_) => fail('Left expected'));
     });
   });
 }

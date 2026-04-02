@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:revn/core/errors/common_failure.dart';
 import 'package:revn/features/auth/application/controllers/auth_controller.dart';
 import 'package:revn/features/auth/application/providers/auth_providers.dart';
 import 'package:revn/features/auth/application/states/auth_state.dart';
@@ -94,7 +95,9 @@ void main() {
     expect(find.byType(SignInPage), findsOneWidget);
     expect(find.text('카카오 계정 연동'), findsOneWidget);
     expect(
-      find.text('현재 카카오 계정과 연동된 사업자번호가 없습니다. \n최초 사업자번호로 로그인 후 카카오 로그인이 가능합니다.'),
+      find.text(
+        '현재 카카오 계정과 연동된 사업자번호가 없습니다. \n최초 사업자번호로 로그인 후 카카오 로그인이 가능합니다.',
+      ),
       findsOneWidget,
     );
     expect(find.byIcon(Icons.close), findsOneWidget);
@@ -156,5 +159,23 @@ void main() {
 
     expect(find.widgetWithText(FilledButton, '카카오 로그인'), findsOneWidget);
     expect(find.text('카카오 계정 연동'), findsNothing);
+  });
+
+  testWidgets('unauthenticated notice가 있으면 진입 시 스낵바를 한 번 보여주고 consume한다', (
+    tester,
+  ) async {
+    authController = TestAuthController(
+      const AuthState.unauthenticated(
+        notice: AuthFailure.common(CommonFailure.storage()),
+      ),
+    );
+
+    await tester.pumpWidget(buildTestApp());
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
+
+    expect(find.text('기기 저장소 접근에 실패했습니다.'), findsOneWidget);
+    expect(authController.clearUnauthenticatedNoticeCallCount, 1);
+    expect(authController.state, const AuthState.unauthenticated());
   });
 }

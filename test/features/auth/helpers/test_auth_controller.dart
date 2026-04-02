@@ -8,6 +8,7 @@ class TestAuthController extends AuthController {
 
   int restoreSessionCallCount = 0;
   int signOutCallCount = 0;
+  int clearUnauthenticatedNoticeCallCount = 0;
 
   @override
   AuthState build() => _initialState;
@@ -21,6 +22,12 @@ class TestAuthController extends AuthController {
   Future<void> signOut() async {
     signOutCallCount++;
     state = const AuthState.unauthenticated();
+  }
+
+  @override
+  void clearUnauthenticatedNotice() {
+    clearUnauthenticatedNoticeCallCount++;
+    super.clearUnauthenticatedNotice();
   }
 
   void setStateForTest(AuthState next) {

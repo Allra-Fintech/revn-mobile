@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
 
+import '../../application/controllers/auth_controller.dart';
 import '../../application/controllers/sign_in_controller.dart';
 import '../../application/controllers/social_auth_controller.dart';
+import '../../application/states/auth_state.dart';
 import '../../domain/entities/pending_social_link.dart';
 import '../../domain/entities/social_provider.dart';
 import '../../domain/failures/auth_failure.dart';
@@ -22,6 +24,26 @@ class SignInPage extends ConsumerStatefulWidget {
 }
 
 class _SignInPageState extends ConsumerState<SignInPage> {
+  AuthFailure? _queuedUnauthenticatedNotice;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
+      final initialNotice = ref
+          .read(authControllerProvider)
+          .whenOrNull(unauthenticated: (notice) => notice);
+      if (initialNotice != null) {
+        _scheduleUnauthenticatedNotice(initialNotice);
+      }
+    });
+  }
+
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(
       context,
@@ -33,6 +55,49 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       _showSnackBar(authFailureMessage(next.error! as AuthFailure));
       ref.read(socialAuthControllerProvider.notifier).resetSocialSignInError();
     }
+  }
+
+  void _listenToAuthState(AuthState? previous, AuthState next) {
+    final previousNotice = previous?.whenOrNull(
+      unauthenticated: (notice) => notice,
+    );
+    final nextNotice = next.whenOrNull(unauthenticated: (notice) => notice);
+
+    if (nextNotice == null ||
+        nextNotice == previousNotice ||
+        nextNotice == _queuedUnauthenticatedNotice) {
+      return;
+    }
+
+    _scheduleUnauthenticatedNotice(nextNotice);
+  }
+
+  void _scheduleUnauthenticatedNotice(AuthFailure notice) {
+    _queuedUnauthenticatedNotice = notice;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
+      final latestNotice = ref
+          .read(authControllerProvider)
+          .whenOrNull(unauthenticated: (notice) => notice);
+
+      if (latestNotice != notice) {
+        if (_queuedUnauthenticatedNotice == notice) {
+          _queuedUnauthenticatedNotice = null;
+        }
+        return;
+      }
+
+      _showSnackBar(authFailureMessage(notice));
+      ref.read(authControllerProvider.notifier).clearUnauthenticatedNotice();
+
+      if (_queuedUnauthenticatedNotice == notice) {
+        _queuedUnauthenticatedNotice = null;
+      }
+    });
   }
 
   @override
@@ -48,6 +113,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       socialAuthControllerProvider.select((state) => state.socialSignIn),
       _listenToSocialAuth,
     );
+    ref.listen<AuthState>(authControllerProvider, _listenToAuthState);
 
     return Scaffold(
       body: SafeArea(
