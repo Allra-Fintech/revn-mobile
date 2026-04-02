@@ -93,15 +93,15 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     }
   }
 
-  Future<bool?> _showSocialLinkDialog() {
+  Future<bool?> _showSocialLinkDialog(String providerDisplayName) {
     return showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('카카오 계정 연동'),
-          content: const Text(
-            '최근 로그인한 카카오 계정을 가입과 연동할 수 있습니다. 다음 로그인시 카카오로 간편하게 로그인할 수 있어요.',
+          title: Text('$providerDisplayName 계정 연동'),
+          content: Text(
+            '최근 로그인한 $providerDisplayName 계정을 가입과 연동할 수 있습니다. 다음 로그인 시 $providerDisplayName로 간편하게 로그인할 수 있어요.',
           ),
           actions: [
             TextButton(
@@ -125,7 +125,9 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
       return;
     }
 
-    final shouldLinkNow = await _showSocialLinkDialog();
+    final shouldLinkNow = await _showSocialLinkDialog(
+      pendingLink.provider.displayName,
+    );
     if (!mounted) {
       return;
     }

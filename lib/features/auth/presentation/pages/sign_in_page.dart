@@ -52,7 +52,11 @@ class _SignInPageState extends ConsumerState<SignInPage> {
 
   void _listenToSocialAuth(AsyncValue<void>? previous, AsyncValue<void> next) {
     if (previous?.isLoading == true && next.hasError) {
-      _showSnackBar(authFailureMessage(next.error! as AuthFailure));
+      final error = next.error;
+      final message = error is AuthFailure
+          ? authFailureMessage(error)
+          : '알 수 없는 오류가 발생했습니다.';
+      _showSnackBar(message);
       ref.read(socialAuthControllerProvider.notifier).resetSocialSignInError();
     }
   }

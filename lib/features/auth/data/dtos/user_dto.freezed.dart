@@ -35,10 +35,6 @@ bool operator ==(Object other) {
 @override
 int get hashCode => Object.hash(runtimeType,id,businessNumber,username);
 
-@override
-String toString() {
-  return 'UserDto(id: $id, businessNumber: $businessNumber, username: $username)';
-}
 
 
 }
@@ -204,8 +200,8 @@ return $default(_that.id,_that.businessNumber,_that.username);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _UserDto implements UserDto {
-  const _UserDto({required this.id, required this.businessNumber, this.username});
+class _UserDto extends UserDto {
+  const _UserDto({required this.id, required this.businessNumber, this.username}): super._();
   factory _UserDto.fromJson(Map<String, dynamic> json) => _$UserDtoFromJson(json);
 
 @override final  String id;
@@ -232,10 +228,6 @@ bool operator ==(Object other) {
 @override
 int get hashCode => Object.hash(runtimeType,id,businessNumber,username);
 
-@override
-String toString() {
-  return 'UserDto(id: $id, businessNumber: $businessNumber, username: $username)';
-}
 
 
 }

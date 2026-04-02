@@ -536,10 +536,13 @@ void main() {
     );
 
     expect(find.byType(AlertDialog), findsOneWidget);
-    expect(find.text('카카오 계정 연동'), findsOneWidget);
+    expect(
+      find.text('${SocialProvider.kakao.displayName} 계정 연동'),
+      findsOneWidget,
+    );
     expect(
       find.text(
-        '최근 로그인한 카카오 계정을 가입과 연동할 수 있습니다. 다음 로그인시 카카오로 간편하게 로그인할 수 있어요.',
+        '최근 로그인한 ${SocialProvider.kakao.displayName} 계정을 가입과 연동할 수 있습니다. 다음 로그인 시 ${SocialProvider.kakao.displayName}로 간편하게 로그인할 수 있어요.',
       ),
       findsOneWidget,
     );

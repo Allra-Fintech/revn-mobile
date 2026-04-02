@@ -14,14 +14,15 @@ void main() {
       businessNumber: '1234567890',
       password: 'super-secret',
     );
+    const userDto = UserDto(
+      id: 'user-id',
+      businessNumber: '1234567890',
+      username: 'owner',
+    );
     final signInResponse = SignInResponseDto(
       accessToken: 'access-token',
       refreshToken: 'refresh-token',
-      user: const UserDto(
-        id: 'user-id',
-        businessNumber: '1234567890',
-        username: 'owner',
-      ),
+      user: userDto,
     );
     const currentUser = CurrentUser(
       id: 'user-id',
@@ -50,7 +51,13 @@ void main() {
 
     expect(signInResponse.toString(), isNot(contains('access-token')));
     expect(signInResponse.toString(), isNot(contains('refresh-token')));
+    expect(signInResponse.toString(), isNot(contains('user-id')));
+    expect(signInResponse.toString(), isNot(contains('1234567890')));
     expect(signInResponse.toString(), isNot(contains('owner')));
+
+    expect(userDto.toString(), isNot(contains('user-id')));
+    expect(userDto.toString(), isNot(contains('1234567890')));
+    expect(userDto.toString(), isNot(contains('owner')));
 
     expect(currentUser.toString(), isNot(contains('user-id')));
     expect(currentUser.toString(), isNot(contains('1234567890')));

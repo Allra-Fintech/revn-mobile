@@ -6,8 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:revn/core/errors/common_failure.dart';
 import 'package:revn/features/auth/application/controllers/auth_controller.dart';
+import 'package:revn/features/auth/application/controllers/social_auth_controller.dart';
 import 'package:revn/features/auth/application/providers/auth_providers.dart';
 import 'package:revn/features/auth/application/states/auth_state.dart';
+import 'package:revn/features/auth/application/states/social_auth_state.dart';
 import 'package:revn/features/auth/application/usecases/sign_in_with_social_usecase.dart';
 import 'package:revn/features/auth/domain/entities/social_provider.dart';
 import 'package:revn/features/auth/domain/failures/auth_failure.dart';
@@ -16,6 +18,7 @@ import 'package:revn/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
 
 import '../../helpers/test_auth_controller.dart';
+import '../../helpers/test_social_auth_controller.dart';
 
 class MockSignInWithSocialUseCase extends Mock
     implements SignInWithSocialUseCase {}
@@ -35,14 +38,22 @@ void main() {
   late MockSignInWithSocialUseCase signInWithSocialUseCase;
   late MockSocialTokenProvider socialTokenProvider;
   late TestAuthController authController;
+  late TestSocialAuthController socialAuthController;
 
   setUp(() {
     signInWithSocialUseCase = MockSignInWithSocialUseCase();
     socialTokenProvider = MockSocialTokenProvider();
     authController = TestAuthController(const AuthState.unauthenticated());
+    socialAuthController = TestSocialAuthController(const SocialAuthState());
   });
 
-  Widget buildTestApp() {
+  ProviderContainer containerOf(WidgetTester tester) {
+    return ProviderScope.containerOf(tester.element(find.byType(SignInPage)));
+  }
+
+  Widget buildTestApp({
+    SocialAuthState initialSocialAuthState = const SocialAuthState(),
+  }) {
     final router = GoRouter(
       initialLocation: AuthRoute.signIn.path,
       routes: [
@@ -62,6 +73,12 @@ void main() {
     return ProviderScope(
       overrides: [
         authControllerProvider.overrideWith(() => authController),
+        socialAuthControllerProvider.overrideWith(() {
+          socialAuthController = TestSocialAuthController(
+            initialSocialAuthState,
+          );
+          return socialAuthController;
+        }),
         signInWithSocialUseCaseProvider.overrideWithValue(
           signInWithSocialUseCase,
         ),
@@ -177,5 +194,32 @@ void main() {
     expect(find.text('기기 저장소 접근에 실패했습니다.'), findsOneWidget);
     expect(authController.clearUnauthenticatedNoticeCallCount, 1);
     expect(authController.state, const AuthState.unauthenticated());
+  });
+
+  testWidgets('social auth가 예상하지 못한 에러를 반환해도 generic 스낵바를 보여주고 상태를 초기화한다', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildTestApp(
+        initialSocialAuthState: const SocialAuthState(
+          socialSignIn: AsyncLoading<void>(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    socialAuthController.setStateForTest(
+      SocialAuthState(
+        socialSignIn: AsyncError<void>(Exception('boom'), StackTrace.empty),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
+
+    expect(find.text('알 수 없는 오류가 발생했습니다.'), findsOneWidget);
+    expect(
+      containerOf(tester).read(socialAuthControllerProvider).socialSignIn,
+      const AsyncData<void>(null),
+    );
   });
 }
