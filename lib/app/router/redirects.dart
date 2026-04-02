@@ -1,6 +1,6 @@
 import 'package:revn/features/auth/application/states/auth_state.dart';
 import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
-import 'package:revn/features/home/presentation/routes/home_routes.dart';
+import 'package:revn/features/dashboard/presentation/routes/dashboard_routes.dart';
 
 String? resolveAppRedirect({
   required AuthState authState,
@@ -11,7 +11,9 @@ String? resolveAppRedirect({
       location == AuthRoute.signIn.path ||
       location == AuthRoute.signUp.path ||
       location == AuthRoute.agreement.path;
-  final isHome = location == HomeRoute.home.path;
+  final isDashboardRoute = DashboardRoute.values.any(
+    (route) => location == route.path,
+  );
 
   return authState.when(
     initial: () => isSplash ? null : AuthRoute.splash.path,
@@ -19,13 +21,13 @@ String? resolveAppRedirect({
     restoreFailed: (_) => isSplash ? null : AuthRoute.splash.path,
     authenticated: (_) {
       if (isAuthPage || isSplash) {
-        return HomeRoute.home.path;
+        return DashboardRoute.dashboard.path;
       }
 
       return null;
     },
     unauthenticated: (_) {
-      if (isHome || isSplash) {
+      if (isDashboardRoute || isSplash) {
         return AuthRoute.signIn.path;
       }
 

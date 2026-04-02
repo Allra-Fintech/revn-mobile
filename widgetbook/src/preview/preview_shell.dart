@@ -13,6 +13,8 @@ import 'package:revn/features/auth/presentation/pages/agreement_webview_page.dar
 import 'package:revn/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:revn/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
+import 'package:revn/features/dashboard/presentation/pages/dashboard_action_placeholder_page.dart';
+import 'package:revn/features/dashboard/presentation/routes/dashboard_routes.dart';
 
 import 'auth/auth_preview_config.dart';
 import 'auth/auth_preview_scope.dart';
@@ -69,6 +71,27 @@ class _WidgetbookPreviewShellState extends State<WidgetbookPreviewShell> {
 
           return AgreementWebViewPage(document: document);
         },
+      ),
+      GoRoute(
+        path: DashboardRoute.reAuth.path,
+        builder: (context, state) => const DashboardActionPlaceholderPage(
+          title: '간편인증 재진행',
+          description: 'Widgetbook 미리보기 목적지입니다.',
+        ),
+      ),
+      GoRoute(
+        path: DashboardRoute.advanceRequest.path,
+        builder: (context, state) => const DashboardActionPlaceholderPage(
+          title: '선지급 신청',
+          description: 'Widgetbook 미리보기 목적지입니다.',
+        ),
+      ),
+      GoRoute(
+        path: DashboardRoute.payment.path,
+        builder: (context, state) => const DashboardActionPlaceholderPage(
+          title: '납부하기',
+          description: 'Widgetbook 미리보기 목적지입니다.',
+        ),
       ),
     ],
   );

@@ -10,7 +10,7 @@ const authPreviewBusinessNumber = '1234567890';
 const authPreviewUser = CurrentUser(
   id: 'widgetbook-user',
   businessNumber: authPreviewBusinessNumber,
-  username: 'Widgetbook Preview',
+  username: '레븐',
 );
 
 class AuthPreviewConfig {

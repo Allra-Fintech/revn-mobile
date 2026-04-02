@@ -13,8 +13,8 @@ import 'package:revn/features/auth/domain/failures/auth_failure.dart';
 import 'package:revn/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:revn/features/auth/presentation/pages/splash_page.dart';
 import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
-import 'package:revn/features/home/presentation/pages/home_page.dart';
-import 'package:revn/features/home/presentation/routes/home_routes.dart';
+import 'package:revn/features/dashboard/presentation/pages/dashboard_page.dart';
+import 'package:revn/features/dashboard/presentation/routes/dashboard_routes.dart';
 
 import '../../features/auth/helpers/test_auth_controller.dart';
 
@@ -106,16 +106,20 @@ void main() {
     expect(find.byType(SplashPage), findsOneWidget);
   });
 
-  testWidgets('authenticated state redirects splash to home', (tester) async {
+  testWidgets('authenticated state redirects splash to dashboard', (
+    tester,
+  ) async {
     await pumpRouterApp(
       tester,
       TestAuthController(const AuthState.authenticated(user)),
     );
 
-    expect(find.byType(HomePage), findsOneWidget);
+    expect(find.byType(DashboardPage), findsOneWidget);
   });
 
-  testWidgets('authenticated state redirects sign-in to home', (tester) async {
+  testWidgets('authenticated state redirects sign-in to dashboard', (
+    tester,
+  ) async {
     await pumpRouterApp(
       tester,
       TestAuthController(const AuthState.authenticated(user)),
@@ -125,27 +129,28 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    expect(locationOf(tester), HomeRoute.home.path);
-    expect(find.byType(HomePage), findsOneWidget);
+    expect(locationOf(tester), DashboardRoute.dashboard.path);
+    expect(find.byType(DashboardPage), findsOneWidget);
   });
 
-  testWidgets('unauthenticated state redirects splash and home to sign-in', (
-    tester,
-  ) async {
-    await pumpRouterApp(
-      tester,
-      TestAuthController(const AuthState.unauthenticated()),
-    );
+  testWidgets(
+    'unauthenticated state redirects splash and dashboard to sign-in',
+    (tester) async {
+      await pumpRouterApp(
+        tester,
+        TestAuthController(const AuthState.unauthenticated()),
+      );
 
-    expect(find.byType(SignInPage), findsOneWidget);
+      expect(find.byType(SignInPage), findsOneWidget);
 
-    routerOf(tester).go(HomeRoute.home.path);
-    await tester.pump();
-    await tester.pump();
+      routerOf(tester).go(DashboardRoute.dashboard.path);
+      await tester.pump();
+      await tester.pump();
 
-    expect(locationOf(tester), AuthRoute.signIn.path);
-    expect(find.byType(SignInPage), findsOneWidget);
-  });
+      expect(locationOf(tester), AuthRoute.signIn.path);
+      expect(find.byType(SignInPage), findsOneWidget);
+    },
+  );
 
   testWidgets('unauthenticated notice state still redirects to sign-in', (
     tester,
@@ -206,6 +211,22 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    expect(find.byType(HomePage), findsOneWidget);
+    expect(find.byType(DashboardPage), findsOneWidget);
+  });
+
+  testWidgets('authenticated state can open dashboard action placeholders', (
+    tester,
+  ) async {
+    await pumpRouterApp(
+      tester,
+      TestAuthController(const AuthState.authenticated(user)),
+    );
+
+    routerOf(tester).go(DashboardRoute.reAuth.path);
+    await tester.pump();
+    await tester.pump();
+
+    expect(locationOf(tester), DashboardRoute.reAuth.path);
+    expect(find.text('간편인증 재진행'), findsWidgets);
   });
 }

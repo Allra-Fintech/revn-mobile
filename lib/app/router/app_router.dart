@@ -6,7 +6,7 @@ import 'package:revn/app/router/router_refresh_notifier.dart';
 import 'package:revn/features/auth/application/controllers/auth_controller.dart';
 import 'package:revn/features/auth/application/states/auth_state.dart';
 import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
-import 'package:revn/features/home/presentation/routes/home_routes.dart';
+import 'package:revn/features/dashboard/presentation/routes/dashboard_routes.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 import '../providers/app_providers.dart';
@@ -27,7 +27,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     refreshListenable: refreshNotifier,
     observers: [TalkerRouteObserver(talker)],
     routes: [
-      ...HomeRoutes.buildHomeRoutes(),
+      ...DashboardRoutes.buildDashboardRoutes(),
       ...DebugRoutes.buildDebugRoutes(talker),
       ...AuthRoutes.buildAuthRoutes(),
     ],

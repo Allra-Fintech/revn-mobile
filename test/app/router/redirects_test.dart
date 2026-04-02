@@ -6,7 +6,7 @@ import 'package:revn/features/auth/application/states/auth_state.dart';
 import 'package:revn/features/auth/domain/entities/current_user.dart';
 import 'package:revn/features/auth/domain/failures/auth_failure.dart';
 import 'package:revn/features/auth/presentation/routes/auth_routes.dart';
-import 'package:revn/features/home/presentation/routes/home_routes.dart';
+import 'package:revn/features/dashboard/presentation/routes/dashboard_routes.dart';
 
 void main() {
   const user = CurrentUser(
@@ -20,14 +20,14 @@ void main() {
       expect(
         resolveAppRedirect(
           authState: const AuthState.initial(),
-          location: HomeRoute.home.path,
+          location: DashboardRoute.dashboard.path,
         ),
         AuthRoute.splash.path,
       );
       expect(
         resolveAppRedirect(
           authState: const AuthState.loading(),
-          location: HomeRoute.home.path,
+          location: DashboardRoute.dashboard.path,
         ),
         AuthRoute.splash.path,
       );
@@ -36,7 +36,7 @@ void main() {
           authState: const AuthState.restoreFailed(
             AuthFailure.common(CommonFailure.network()),
           ),
-          location: HomeRoute.home.path,
+          location: DashboardRoute.dashboard.path,
         ),
         AuthRoute.splash.path,
       );
@@ -57,49 +57,62 @@ void main() {
           authState: authState,
           location: AuthRoute.splash.path,
         ),
-        HomeRoute.home.path,
+        DashboardRoute.dashboard.path,
       );
       expect(
         resolveAppRedirect(
           authState: authState,
           location: AuthRoute.signIn.path,
         ),
-        HomeRoute.home.path,
+        DashboardRoute.dashboard.path,
       );
       expect(
         resolveAppRedirect(
           authState: authState,
           location: AuthRoute.signUp.path,
         ),
-        HomeRoute.home.path,
+        DashboardRoute.dashboard.path,
       );
     });
 
-    test('redirects unauthenticated users from splash and home to sign-in', () {
-      const authState = AuthState.unauthenticated();
-      const authStateWithNotice = AuthState.unauthenticated(
-        notice: AuthFailure.common(CommonFailure.storage()),
-      );
+    test(
+      'redirects unauthenticated users from splash and dashboard to sign-in',
+      () {
+        const authState = AuthState.unauthenticated();
+        const authStateWithNotice = AuthState.unauthenticated(
+          notice: AuthFailure.common(CommonFailure.storage()),
+        );
 
-      expect(
-        resolveAppRedirect(
-          authState: authState,
-          location: AuthRoute.splash.path,
-        ),
-        AuthRoute.signIn.path,
-      );
-      expect(
-        resolveAppRedirect(authState: authState, location: HomeRoute.home.path),
-        AuthRoute.signIn.path,
-      );
-      expect(
-        resolveAppRedirect(
-          authState: authStateWithNotice,
-          location: HomeRoute.home.path,
-        ),
-        AuthRoute.signIn.path,
-      );
-    });
+        expect(
+          resolveAppRedirect(
+            authState: authState,
+            location: AuthRoute.splash.path,
+          ),
+          AuthRoute.signIn.path,
+        );
+        expect(
+          resolveAppRedirect(
+            authState: authState,
+            location: DashboardRoute.dashboard.path,
+          ),
+          AuthRoute.signIn.path,
+        );
+        expect(
+          resolveAppRedirect(
+            authState: authStateWithNotice,
+            location: DashboardRoute.dashboard.path,
+          ),
+          AuthRoute.signIn.path,
+        );
+        expect(
+          resolveAppRedirect(
+            authState: authState,
+            location: DashboardRoute.payment.path,
+          ),
+          AuthRoute.signIn.path,
+        );
+      },
+    );
 
     test('returns null for routes outside the guarded locations', () {
       expect(
@@ -119,7 +132,7 @@ void main() {
       expect(
         resolveAppRedirect(
           authState: const AuthState.authenticated(user),
-          location: HomeRoute.home.path,
+          location: DashboardRoute.dashboard.path,
         ),
         isNull,
       );
